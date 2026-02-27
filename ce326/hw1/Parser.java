@@ -1,7 +1,9 @@
 //package hw1;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Scanner;
+
 
 public class Parser {
     private Scanner scanner = new Scanner(System.in);
@@ -29,26 +31,17 @@ public class Parser {
         Splited = Input.split(";"); //An thelw na kratisw ; grafw (?=<;)
 
         System.out.println("Splited string: " + Arrays.toString(Splited));
-        //qmarkChecker(Splited);
-        Instruction joj = new Instruction();
+    
+        
         for (int i=0 ; i < Splited.length ; i++) {
-            String otinane = joj.makis(Splited[i]);
+            try {
+            Instruction instr = new Instruction(Splited[i]);
+            LinkedList<String> tokenList = instr.tokenMaker();
+            } catch (ParserException e){
+                System.out.println(e.getMessage());
+                break;
+            }
         }
     }
 
-    //Checks for a question mark in every splitted string from the inputed string before
-    /*private void qmarkChecker(String[] splittedString) {
-        for (int i=0 ; i < splittedString.length ; i++) {
-            String test;
-            
-            test = splittedString[i].trim();
-            
-            if (!test.endsWith(";")) {
-                System.out.println("DEN TELEIWNEI ME ;");
-            }
-            else {
-                System.out.println("TELEIWNEI ME ;");
-            }
-        }
-    }*/
 }
