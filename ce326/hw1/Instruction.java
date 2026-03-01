@@ -30,9 +30,49 @@ public class Instruction {
         return tokenList;
     }
 
-    public void errorChecker (LinkedList<String> tokenlist){
-        if (){
-            throw new ParserException("Expecting ; at the end of line");
+    public void errorChecker (LinkedList<String> tokenList) throws ParserException{
+        int leftParenthesis = 0;
+        int rightParenthesis = 0;
+        int equal = 0;
+        String token1, token2;
+        int size  = tokenList.size();
+        String operands = "+*/^=()";
+
+        for (int i = 0; i < size - 1; i++){
+            token1 = tokenList.get(i);
+            token2 = tokenList.get(i+1);
+
+            if ((token1.equals("(")) || ((i == size - 1) && (token2.equals("(")))){
+                leftParenthesis++;
+            }
+            if ((token2.equals(")")) || ((i == 0) && (token1.equals(")")))){
+                rightParenthesis++;
+            }
+            if (token1.equals("=") || ((i == size - 1) && (token2.equals("=")))){
+                equal++;
+            }
+
+            if (equal > 1){
+                throw new ParserException("Multiple assignment operator in expression");
+            }
+            if ((operands.contains(token1)) && (operands.contains(token2)) && !(token1.equals("="))){
+                throw new ParserException("Expecting operand between operators");
+            }
+            if (!(operands.contains(token1)) && !(operands.contains(token2)) && !((token1.equals("-")) || (token2.equals("-")))){
+                throw new ParserException("Expecting operator between operands");
+                
+            }
         }
-    } 
+
+        if (leftParenthesis > rightParenthesis){
+            throw new ParserException("Expecting ) at end of expression");
+        }
+        else if (rightParenthesis > leftParenthesis){
+            throw new ParserException("Expecting ( before closing");
+        }
+    }
+
+  //  public void RPNcalculator(Variables){
+
+//    }
 }

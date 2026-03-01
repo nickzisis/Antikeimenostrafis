@@ -11,8 +11,12 @@ public class Interpreter {
             if (Input.trim().equalsIgnoreCase("exit")) {
                 break;
             }
-            
-            p.strParser(Input);
+            try{
+                p.strParser(Input);
+            } catch (ParserException e){
+                System.out.println(e.getMessage());
+                break;
+            }
         }
     }
 }
