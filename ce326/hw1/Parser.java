@@ -1,17 +1,19 @@
 //package hw1;
 
-import java.util.Arrays;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Scanner;
 
 
 public class Parser {
     private Scanner scanner = new Scanner(System.in);
+    private HashMap<String, Double> variables = new HashMap<>();
     
     //Reads from the terminal and returns the string read
     public String inputRead() {
         String userInput;
-        
+
         userInput = scanner.nextLine();
 
         return userInput;
@@ -20,26 +22,50 @@ public class Parser {
     //Parses the string given to it using the ";" as its thing to split for, then checks if each
     //split ends with the ";"
     public void strParser(String Input) throws ParserException{
-        if (!Input.endsWith(";")) {
+        if (!Input.trim().endsWith(";")) {
             System.out.println("Expecting ; at the end of line");
             
             return;
         }
 
         String Splited[];
+        String variableName = "";
+        boolean hasAssigned = false, hasPrint = false;
 
-        Splited = Input.split(";"); //An thelw na kratisw ; grafw (?=<;)
-
-        System.out.println("Splited string: " + Arrays.toString(Splited));
+        Splited = Input.split(";");
     
-        
         for (String Splited1 : Splited) {
             try {
                 Instruction instr = new Instruction(Splited1);
                 LinkedList<String> tokenList = instr.tokenMaker();
-                instr.errorChecker(tokenList);
                 
-                // instr.RPNcalculator();
+                if ((tokenList.size() >= 2) && (tokenList.get(1).equals("="))) {
+                    variableName = tokenList.get(0);
+                    hasAssigned = true;
+                    
+                    tokenList.remove(0);
+                    tokenList.remove(0); 
+                }
+                else if ((!tokenList.isEmpty()) && (tokenList.get(0).equals("print"))) {
+                    hasPrint = true;
+                    
+                    tokenList.remove(0);
+                }
+                
+                instr.errorChecker(tokenList);
+                Deque<String> SYResult = instr.ShuntingYard(tokenList);
+                double result = instr.RPNcalculator(SYResult, this.variables);
+
+                if (hasAssigned) {
+                    this.variables.put(variableName, result);
+                }
+                else if(hasPrint) {
+                    if (result == Math.floor(result)) {
+                        System.out.println("  " + (int)result);
+                    } else {
+                        System.out.printf("  %.6f\n", result);
+                    }
+                }
             }catch (ParserException e){
                 System.out.println(e.getMessage());
                 break;

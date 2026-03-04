@@ -6,6 +6,7 @@ public class Interpreter {
         Parser p = new Parser();
 
         while (true) {
+            System.out.print("> ");
             Input = p.inputRead();
 
             if (Input.trim().equalsIgnoreCase("exit")) {
