@@ -35,8 +35,8 @@ public class Instruction {
         int equal = 0;
         String token1, token2;
         int size  = tokenList.size();
-        String operators = "+-*/^=";
-        String parentheses = "()";
+        String operators = "+-*/^="; //We didnt check for -.
+        String parentheses = "()"; //We didnt check for parentheses.
 
         for (int i = 0; i < size - 1; i++){
             token1 = tokenList.get(i);
@@ -58,6 +58,7 @@ public class Instruction {
             if ((operators.contains(token1)) && (operators.contains(token2)) && !(token1.equals("=")) && !(token2.equals("-"))){
                 throw new ParserException("Expecting operator between operands");
             }
+            //Checking for parentheses aswell.
             if (!(operators.contains(token1)) && !(operators.contains(token2)) && !((token1.equals("-")) || (token2.equals("-")) || (parentheses.contains(token1)) || (parentheses.contains(token2)))){
                 throw new ParserException("Expecting operand between operators");
             }
@@ -71,12 +72,15 @@ public class Instruction {
         }
     }
 
+    //Makes the Shunting Yard algorithm and returns the output queue
+    //for later use in the RPN.
     public Deque<String> ShuntingYard(LinkedList<String> tokenList){
         Deque<String> result = new ArrayDeque<>();
         Stack<String> operatorStack = new Stack<>();
         String operators = "+-*/^";
 
         for (int i=0; i < tokenList.size() ; i++) {
+            //If =, then skip.
             if (tokenList.get(i).equals("=")) {
                 continue;
             }
@@ -136,6 +140,7 @@ public class Instruction {
         return result;
     }
 
+    //Gets the priority for every operator.
     private int getPriority(String operator) {
         switch (operator) {
             case "+":
@@ -151,17 +156,23 @@ public class Instruction {
         }
     }
 
+    //Calculates the RPN given g=the SYResult, and checks the hashmap for if the variables are in there.
     public double RPNcalculator(Deque<String> SYResult, HashMap<String, Double> variables) throws ParserException{
         Stack<Double> resultStack = new Stack<>();
         String operatorString = "+-*/^";
-        char operator;
-        String currentToken;
-        double num1, num2;
-        double res = 0;
+        char operator; //This is used for the later operation.
+        String currentToken; //The current token from the SYResult.
+        double num1, num2, res;
 
+        //For as long as it isn't empty.
         while (!SYResult.isEmpty()) {
             currentToken = SYResult.poll();
+
+            //If it's not an operator then checks if it's a digit, if it is then push it to the stack,
+            //if not then checks if it is a variable. If it exists as a variable return its value and
+            //push it to the stack.
             if (!operatorString.contains(currentToken)) {
+
                 if (Character.isDigit(currentToken.charAt(0))) {
                     resultStack.push(Double.valueOf(currentToken));
                 }
@@ -172,6 +183,8 @@ public class Instruction {
                     resultStack.push(variables.get(currentToken));
                 }
             }
+            
+            //If its an operator then do the operation and push the result.
             else {
                 
                 num1 = resultStack.pop();

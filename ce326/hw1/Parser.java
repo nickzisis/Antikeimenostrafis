@@ -39,6 +39,7 @@ public class Parser {
                 Instruction instr = new Instruction(Splited1);
                 LinkedList<String> tokenList = instr.tokenMaker();
                 
+                //Checks if we want to add a new variable, if yes then the hasAssigned becomes true.
                 if ((tokenList.size() >= 2) && (tokenList.get(1).equals("="))) {
                     variableName = tokenList.get(0);
                     hasAssigned = true;
@@ -46,6 +47,7 @@ public class Parser {
                     tokenList.remove(0);
                     tokenList.remove(0); 
                 }
+                //Checks if we have to print, if yes then the hasPrint becomes true.
                 else if ((!tokenList.isEmpty()) && (tokenList.get(0).equals("print"))) {
                     hasPrint = true;
                     
@@ -57,9 +59,11 @@ public class Parser {
                 double result = instr.RPNcalculator(SYResult, this.variables);
 
                 if (hasAssigned) {
+                    //Assigns the new variable to the hashmap.
                     this.variables.put(variableName, result);
                 }
                 else if(hasPrint) {
+                    //Prints.
                     if (result == Math.floor(result)) {
                         System.out.println("  " + (int)result);
                     } else {
