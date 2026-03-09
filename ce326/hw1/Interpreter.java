@@ -2,22 +2,44 @@
 
 public class Interpreter {
     public static void main(String[] args) {
-        String Input;
-        Parser p = new Parser();
         
-        while (true) {
-            System.out.print("> ");
-            Input = p.inputRead();
+        if (args.length == 0){
+            String Input;
+            Parser p = new Parser();
 
-            if (Input.trim().equalsIgnoreCase("exit")) {
-                break;
+            while (true) {
+                System.out.print("> ");
+                Input = p.inputRead();
+
+                if (Input.trim().equalsIgnoreCase("exit")) {
+                    break;
+                }
+                try{
+                    p.strParser(Input);
+                } catch (ParserException e){
+                    System.out.println("> " + e.getMessage());
+                    break;
+                }
             }
-            try {
-                p.strParser(Input);
-            } catch (ParserException e){
-                System.out.println(e.getMessage());
-                break;
+        } else {
+            String Input;
+            Parser p = new Parser(new File(args[0]));
+
+            while (true) {
+                System.out.print("> ");
+                Input = p.inputRead();
+
+                if (Input.trim().equalsIgnoreCase("exit")) {
+                    break;
+                }
+                try{
+                    p.strParser(Input);
+                } catch (ParserException e){
+                    System.out.println("> " + e.getMessage());
+                    break;
+                }
             }
         }
+        
     }
 }
