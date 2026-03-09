@@ -4,7 +4,7 @@ public class Interpreter {
     public static void main(String[] args) {
         String Input;
         Parser p = new Parser();
-
+        
         while (true) {
             System.out.print("> ");
             Input = p.inputRead();
