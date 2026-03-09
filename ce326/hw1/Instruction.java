@@ -35,13 +35,13 @@ public class Instruction {
         int equal = 0;
         String token1, token2;
         int size  = tokenList.size();
-        String operators = "+-*/^="; //We didnt check for -.
+        String operators = "+-*/^=;"; //We didnt check for -.
         String parentheses = "()"; //We didnt check for parentheses.
 
         for (int i = 0; i < size - 1; i++){
             token1 = tokenList.get(i);
             token2 = tokenList.get(i+1);
-
+            
             if ((token1.equals("(")) || ((i == size - 1) && (token2.equals("(")))){
                 leftParenthesis++;
             }
@@ -55,13 +55,14 @@ public class Instruction {
             if (equal > 1){
                 throw new ParserException("Multiple assignment operator in expression");
             }
-            if ((operators.contains(token1)) && (operators.contains(token2)) && !(token1.equals("=")) && !(token2.equals("-"))){
-                throw new ParserException("Expecting operator between operands");
+            
+            if (((operators.contains(token1)) && (operators.contains(token2)) && !(token1.equals("=")) && !(token2.equals("-")))){
+                throw new ParserException("Expecting operand between operators");
             }
             //Checking for parentheses aswell.
             if (!(operators.contains(token1)) && !(operators.contains(token2)) && !((token1.equals("-")) || (token2.equals("-")) || (parentheses.contains(token1)) || (parentheses.contains(token2)))){
-                throw new ParserException("Expecting operand between operators");
-            }
+                throw new ParserException("Expecting operator between operands");
+                }
         }
 
         if (leftParenthesis > rightParenthesis){
