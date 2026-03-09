@@ -1,5 +1,7 @@
 //package hw1;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,10 +9,21 @@ import java.util.Scanner;
 
 
 public class Parser {
-    private Scanner scanner = new Scanner(System.in);
+    private Scanner scanner;
     private HashMap<String, Double> variables = new HashMap<>();
     
     //Reads from the terminal and returns the string read
+    public Parser(){
+        this.scanner = new Scanner(System.in);
+    }
+    public Parser(File inputFile){
+        try{
+            this.scanner = new Scanner(inputFile);
+        } catch (FileNotFoundException e){
+        }
+    }
+
+
     public String inputRead() {
         String userInput;
 
