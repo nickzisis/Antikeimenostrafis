@@ -23,7 +23,7 @@ public class Interpreter {
                 try{
                     p.strParser(Input);
                 } catch (ParserException e){
-                    System.out.println("> " + e.getMessage());
+                    System.out.println(e.getMessage());
                     break;
                 }
             }
@@ -45,7 +45,7 @@ public class Interpreter {
                 try{
                     p.strParser(Input);
                 } catch (ParserException e){
-                    System.out.println("> " + e.getMessage());
+                    System.out.println(e.getMessage());
                     break;
                 }
             }
