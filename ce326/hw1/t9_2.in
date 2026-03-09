@@ -1,0 +1,7 @@
+abc = 22.11;
+cde = 32.89;
+
+z = abc - cde;
+print(z);
+z = z ^ 2;
+print(z);
