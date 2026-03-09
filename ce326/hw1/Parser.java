@@ -1,4 +1,4 @@
-//package ce326.hw1;
+package ce326.hw1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +47,7 @@ public class Parser {
         String variableName = "";
         boolean hasAssigned = false, hasPrint = false;
 
-        Splited = Input.split("(?<=;)");
+        Splited = Input.split(";");
     
         for (String Splited1 : Splited) {
             try {
