@@ -23,9 +23,7 @@ public class Parser {
     //split ends with the ";"
     public void strParser(String Input) throws ParserException{
         if (!Input.trim().endsWith(";")) {
-            System.out.println("Expecting ; at the end of line");
-            
-            return;
+            throw new ParserException("Expecting ; at the end of line");
         }
 
         String Splited[];

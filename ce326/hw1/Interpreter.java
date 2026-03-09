@@ -12,7 +12,7 @@ public class Interpreter {
             if (Input.trim().equalsIgnoreCase("exit")) {
                 break;
             }
-            try{
+            try {
                 p.strParser(Input);
             } catch (ParserException e){
                 System.out.println(e.getMessage());

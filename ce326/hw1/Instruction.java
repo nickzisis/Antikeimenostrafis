@@ -106,8 +106,6 @@ public class Instruction {
             }
             //If operator
             else if (operators.contains(tokenList.get(i))) {
-                if (!operatorStack.empty()) {
-                }
 
                 while ((!(operatorStack.empty())) && (getPriority(operatorStack.peek()) >= getPriority(tokenList.get(i)))) {
                     result.addLast(operatorStack.pop());
