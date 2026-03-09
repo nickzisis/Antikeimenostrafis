@@ -1,4 +1,4 @@
-//package hw1;
+//package ce326.hw1;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -35,7 +35,7 @@ public class Instruction {
         int equal = 0;
         String token1, token2;
         int size  = tokenList.size();
-        String operators = "+-*/^="; //We didnt check for -.
+        String operators = "+-*/^=;"; //We didnt check for -.
         String parentheses = "()"; //We didnt check for parentheses.
 
         for (int i = 0; i < size - 1; i++){

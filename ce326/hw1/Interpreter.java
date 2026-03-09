@@ -1,4 +1,5 @@
-//package hw1;
+//package ce326.hw1;
+
 import java.io.File;
 
 public class Interpreter {
@@ -11,6 +12,10 @@ public class Interpreter {
             while (true) {
                 System.out.print("> ");
                 Input = p.inputRead();
+
+                if (Input == null){
+                    break;
+                }
 
                 if (Input.trim().equalsIgnoreCase("exit")) {
                     break;
@@ -29,6 +34,10 @@ public class Interpreter {
             while (true) {
                 System.out.print("> ");
                 Input = p.inputRead();
+                
+                if (Input == null){
+                    break;
+                }
 
                 if (Input.trim().equalsIgnoreCase("exit")) {
                     break;

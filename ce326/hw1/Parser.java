@@ -1,4 +1,4 @@
-//package hw1;
+//package ce326.hw1;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,10 +26,14 @@ public class Parser {
 
     public String inputRead() {
         String userInput;
-
-        userInput = scanner.nextLine();
-
-        return userInput;
+        
+        if (scanner.hasNextLine()){
+            userInput = scanner.nextLine();
+        } else {
+            userInput = null;
+        }
+            
+            return userInput;
     }
 
     //Parses the string given to it using the ";" as its thing to split for, then checks if each
@@ -43,7 +47,7 @@ public class Parser {
         String variableName = "";
         boolean hasAssigned = false, hasPrint = false;
 
-        Splited = Input.split(";");
+        Splited = Input.split("(?<=;)");
     
         for (String Splited1 : Splited) {
             try {
