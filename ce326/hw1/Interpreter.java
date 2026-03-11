@@ -12,11 +12,16 @@ public class Interpreter {
             while (true) {
                 System.out.print("> ");
                 Input = p.inputRead();
-
+                
                 if (Input == null){
                     break;
                 }
 
+                if (Input.length() < 1) {
+                    continue;
+                }
+
+                
                 if (Input.trim().equalsIgnoreCase("exit")) {
                     break;
                 }
@@ -24,7 +29,6 @@ public class Interpreter {
                     p.strParser(Input);
                 } catch (ParserException e){
                     System.out.println(e.getMessage());
-                    break;
                 }
             }
         } else {

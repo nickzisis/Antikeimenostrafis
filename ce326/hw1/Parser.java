@@ -53,7 +53,8 @@ public class Parser {
             try {
                 Instruction instr = new Instruction(Splited1);
                 LinkedList<String> tokenList = instr.tokenMaker();
-                
+                instr.errorChecker(tokenList);
+
                 //Checks if we want to add a new variable, if yes then the hasAssigned becomes true.
                 if ((tokenList.size() >= 2) && (tokenList.get(1).equals("="))) {
                     variableName = tokenList.get(0);
@@ -69,7 +70,6 @@ public class Parser {
                     tokenList.remove(0);
                 }
                 
-                instr.errorChecker(tokenList);
                 Deque<String> SYResult = instr.ShuntingYard(tokenList);
                 double result = instr.RPNcalculator(SYResult, this.variables);
 
@@ -79,10 +79,10 @@ public class Parser {
                 }
                 else if(hasPrint) {
                     //Prints.
-                    if (result == Math.floor(result)) {
-                        System.out.println("  " + (int)result);
-                    } else {
+                    if (result - Math.floor(result) > 0.000001) {
                         System.out.printf("  %.6f\n", result);
+                    } else {
+                        System.out.println("  " + (int)result);
                     }
                 }
             }catch (ParserException e){

@@ -25,7 +25,7 @@ public class Instruction {
         while (matcher.find()) {
             tokenList.add(matcher.group());
         }   
-
+        
         return tokenList;
     }
 
@@ -41,7 +41,7 @@ public class Instruction {
         for (int i = 0; i < size - 1; i++){
             token1 = tokenList.get(i);
             token2 = tokenList.get(i+1);
-    
+            
             if ((token1.equals("(")) || ((i == size - 1) && (token2.equals("(")))){
                 leftParenthesis++;
             }
@@ -51,13 +51,22 @@ public class Instruction {
             if (token1.equals("=") || ((i == size - 1) && (token2.equals("=")))){
                 equal++;
             }
+            
+            if ((Character.isDigit(token1.charAt(0))) && ((token2.length() > 1) && (token2.contains("-"))) || ((token1.contains("-")) && ((token2.length() > 1) && (token2.contains("-"))))){
+                tokenList.add(i+1, token2.substring(1));
+                tokenList.add(i+1, "-");
+                tokenList.remove(i+3);
+                size++;
+                token2 = tokenList.get(i+1);
+            }
 
             if (equal > 1){
                 throw new ParserException("Multiple assignment operator in expression");
             }
-            if (((operators.contains(token1)) && (operators.contains(token2)) && !(token1.equals("=")) && !(token2.equals("-"))) || ((i == size - 2) && (operators.contains(token2)))){
+            if (((operators.contains(token1)) && (operators.contains(token2)) && !(token1.equals("="))) || ((i == size - 2) && (operators.contains(token2)))){
                 throw new ParserException("Expecting operand between operators");
             }
+            
             //Checking for parentheses aswell.
             if (!(operators.contains(token1)) && !(operators.contains(token2)) && !((token1.equals("-")) || (token2.equals("-")) || (parentheses.contains(token1)) || (parentheses.contains(token2)))){
                 throw new ParserException("Expecting operator between operands");
@@ -169,11 +178,14 @@ public class Instruction {
             //If it's not an operator then checks if it's a digit, if it is then push it to the stack,
             //if not then checks if it is a variable. If it exists as a variable return its value and
             //push it to the stack.
-            if (!operatorString.contains(currentToken)) {
+            if (!(operatorString.contains(currentToken)) || ((currentToken.contains("-")) && (currentToken.length() > 1))) {
 
                 if (Character.isDigit(currentToken.charAt(0))) {
                     resultStack.push(Double.valueOf(currentToken));
                 }
+                else if ((currentToken.contains("-")) && (Character.isDigit(currentToken.charAt(1)))) {
+                    resultStack.push(Double.valueOf(currentToken));
+                } 
                 else {
                     if(!variables.containsKey(currentToken)) {
                         throw new ParserException("Unknown variable " + currentToken);
@@ -190,6 +202,7 @@ public class Instruction {
                 operator = currentToken.charAt(0);
                 
                 res = GetResult(num1, num2, operator);
+                
                 resultStack.push(res);
             }
         }
