@@ -15,6 +15,7 @@ public class Instruction {
       this.instr = splittedInput;
     }
 
+    //This method uses regex to split the instruction into tokens and returns a list of the tokens.
     public LinkedList<String> tokenMaker(){
 
         String regex = "-?[0-9]+(\\.[0-9]+)?|[a-zA-Z]+|[+\\-*/^=()]";
@@ -29,14 +30,15 @@ public class Instruction {
         return tokenList;
     }
 
+    //This method checks for the errors in the instruction and throws the appropriate exceptions.
     public void errorChecker (LinkedList<String> tokenList) throws ParserException{
         int leftParenthesis = 0;
         int rightParenthesis = 0;
         int equal = 0;
         String token1, token2;
         int size  = tokenList.size();
-        String operators = "+-*/^=;"; //We didnt check for -.
-        String parentheses = "()"; //We didnt check for parentheses.
+        String operators = "+-*/^=;";
+        String parentheses = "()";
 
         for (int i = 0; i < size - 1; i++){
             token1 = tokenList.get(i);
@@ -89,31 +91,26 @@ public class Instruction {
         String operators = "+-*/^";
 
         for (int i=0; i < tokenList.size() ; i++) {
-            //If =, then skip.
+           
             if (tokenList.get(i).equals("=")) {
                 continue;
             }
             
-            //If letter or number
             if (!operators.contains(tokenList.get(i)) && (!tokenList.get(i).equals("(")) && (!tokenList.get(i).equals(")"))) {
                 result.addLast(tokenList.get(i));
             }
-            //If left parenthesis
             else if (tokenList.get(i).equals("(")) {
                 operatorStack.push(tokenList.get(i));
             }
-            //If right parenthesis
             else if (tokenList.get(i).equals(")")) {
                 while ((!operatorStack.isEmpty()) && (!operatorStack.peek().equals("("))) {
                     result.addLast(operatorStack.pop());
                 }
                 
-                //Removes left parenthesis
                 if ((!operatorStack.isEmpty()) && (operatorStack.peek().equals("("))) {
                     operatorStack.pop();
                 }
             }
-            //If operator
             else if (operators.contains(tokenList.get(i))) {
 
                 while ((!(operatorStack.empty())) && (getPriority(operatorStack.peek()) >= getPriority(tokenList.get(i)))) {
@@ -124,22 +121,6 @@ public class Instruction {
             }
         }
 
-        /*  Stack Print
-        if (!operatorStack.empty()) {
-            System.out.println("The Stack contains: ");
-            for (int i=0; i < operatorStack.size() ; i++) {
-                System.out.println(operatorStack.get(i) + " ");
-            }
-            System.out.println("Top of the stack is: " + operatorStack.peek() + "\n");
-        }*/
-
-        /*  Queue Print
-        if(!result.isEmpty()) {
-            System.out.println("The Queue contains: ");
-            System.out.println(result + " ");
-        }*/
-
-        //Adds the leftover operands after the instruction is over
         while (!operatorStack.isEmpty()) {
             result.addLast(operatorStack.pop());
         }
@@ -149,29 +130,23 @@ public class Instruction {
 
     //Gets the priority for every operator.
     private int getPriority(String operator) {
-        switch (operator) {
-            case "+":
-            case "-":
-                return 1;
-            case "*":
-            case "/":
-                return 2;
-            case "^":
-                return 3;
-            default:
-                return -1;
-        }
+        return switch (operator) {
+            case "+", "-" -> 1;
+            case "*", "/" -> 2;
+            case "^" -> 3;
+            default -> -1;
+        };
     }
 
     //Calculates the RPN given g=the SYResult, and checks the hashmap for if the variables are in there.
     public double RPNcalculator(Deque<String> SYResult, HashMap<String, Double> variables) throws ParserException{
         Stack<Double> resultStack = new Stack<>();
         String operatorString = "+-*/^";
-        char operator; //This is used for the later operation.
-        String currentToken; //The current token from the SYResult.
+        char operator; 
+        String currentToken;
         double num1, num2, res;
 
-        //For as long as it isn't empty.
+      
         while (!SYResult.isEmpty()) {
             currentToken = SYResult.poll();
 
@@ -193,7 +168,6 @@ public class Instruction {
                     resultStack.push(variables.get(currentToken));
                 }
             }
-            
             //If its an operator then do the operation and push the result.
             else {
                 
@@ -211,29 +185,17 @@ public class Instruction {
         return res;
    }
 
+   //Gets the result of the operation given the two numbers and the operator.
    private double GetResult(double num1, double num2, char operator) {
-        double result = 0;
+        double result = switch (operator) {
+            case '+' -> num1 + num2;
+            case '-' -> num2 - num1;
+            case '*' -> num2 * num1;
+            case '/' -> num2 / num1;
+            case '^' -> Math.pow(num2, num1);
+            default -> 0;
+        };
     
-        switch (operator) {
-            case '+':
-                result = num1 + num2;
-                break;
-            case '-':
-                result = num2 - num1;
-                break;
-            case '*':
-                result = num2 * num1;
-                break;
-            case '/':
-                result = num2 / num1;
-                break;
-            case '^':
-                result = Math.pow(num2, num1);
-                break;
-            default:
-                break;
-        }
-
         return result;
    }
 }

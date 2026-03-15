@@ -12,7 +12,7 @@ public class Parser {
     private Scanner scanner;
     private HashMap<String, Double> variables = new HashMap<>();
     
-    //Reads from the terminal and returns the string read
+    //Constructors for the parser, one for standard input and one for file input.
     public Parser(){
         this.scanner = new Scanner(System.in);
     }
@@ -23,7 +23,7 @@ public class Parser {
         }
     }
 
-
+    // Reads the input from the user, if there is no input then it returns null.
     public String inputRead() {
         String userInput;
         
@@ -91,5 +91,4 @@ public class Parser {
             }
         }
     }
-
 }

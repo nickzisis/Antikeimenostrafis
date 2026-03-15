@@ -4,7 +4,8 @@ import java.io.File;
 
 public class Interpreter {
     public static void main(String[] args) {
-        
+        // If there are no arguments, read from standard input. 
+        // Otherwise, read from the file specified in the first argument.
         if (args.length == 0){
             String Input;
             Parser p = new Parser();
@@ -20,7 +21,6 @@ public class Interpreter {
                 if (Input.length() < 1) {
                     continue;
                 }
-
                 
                 if (Input.trim().equalsIgnoreCase("exit")) {
                     break;
@@ -54,6 +54,5 @@ public class Interpreter {
                 }
             }
         }
-        
     }
 }
