@@ -7,10 +7,9 @@ public class HW2 {
         
         String userInput;
         Scanner scanner = new Scanner(System.in);
-        //JSONparser test = new JSONparser();
-
+        printInitialMenu();
         do { 
-            printMenu();
+           
             userInput = scanner.nextLine();
             if (userInput.length() > 1) {
                 System.out.println("Invalid option\n");
@@ -32,20 +31,28 @@ public class HW2 {
                     
                     filepath = filepathScanner.nextLine();
                     JSONparser.ErrorChecker(filepath);
+                    JSONparser.BoardMaker(filepath);
+                    
                     break;
                 default:
                     System.out.println("Invalid option\n");
                     break;
             }
             
-
         } while (true);
 
         scanner.close();
     }
 
-    private static void printMenu() {
+    private static void printInitialMenu() {
         System.out.println("- Load New Game  (L/l)");
+        System.out.println("- Quit           (Q/q)\n");
+        System.out.println("Your option: ");
+    }
+
+     private static void printMenu() {
+        System.out.println("- Load New Game  (L/l)");
+        System.out.println("- Continue game  (C/c)");
         System.out.println("- Quit           (Q/q)\n");
         System.out.println("Your option: ");
     }
