@@ -1,7 +1,6 @@
 package ce326.hw2;
 
 import java.util.Scanner;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 

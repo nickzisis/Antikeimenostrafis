@@ -61,7 +61,7 @@ public class Board {
                     case 'y': colorCode = YELLOW; break;
                     default:  colorCode = RESET; break;
                     }
-
+//print
                     System.out.print(colorCode + content + RESET + " ");
                 }
                 else {

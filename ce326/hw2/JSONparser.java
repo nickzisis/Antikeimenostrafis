@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 public class JSONparser {
     public static void ErrorChecker(String filename) {
         try {
