@@ -40,7 +40,7 @@ public class JSONparser {
 
     }
 
-    public static void BoardMaker(String filename) {
+    public static Board BoardMaker(String filename) {
         try {
             String fileContent;
 
@@ -55,13 +55,16 @@ public class JSONparser {
             Board GameBoard = new Board(rows, columns);
             GameBoard.SetEnergy(init_energy);
 
-            for (int i = 0; i < canvas.length() ; i++) {
+            for (int i = 0;  i < canvas.length() ; i++) {
+                System.out.println(i + ((i / columns)) + (i % columns) + "\n");
+
                 GameBoard.AddToBoard((i / columns), (i % columns), canvas.getString(i));
             }
             GameBoard.PrintBoard();
+            return GameBoard;
         }
         catch(IOException e) {
         }
-    } 
+    }    
 }
 

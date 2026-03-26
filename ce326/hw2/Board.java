@@ -4,6 +4,7 @@ public class Board {
     private int rows;
     private int columns;
     private int init_energy;
+    private int shield = 0;
     private String[][] gameboard = {};
     private static final String RESET = "\u001b[0m";
     private static final String RED = "\u001b[31m";
@@ -25,6 +26,10 @@ public class Board {
         this.init_energy = energy;
     }
 
+    public void SetShield(int shield) {
+        this.shield = shield;
+    }
+
     public int GetRows() {
         return this.rows;
     }
@@ -35,6 +40,10 @@ public class Board {
 
     public int GetEnergy() {
         return this.init_energy;
+    }
+
+    public int GetShield() {
+        return this.shield;
     }
 
     public void PrintBoard() {
