@@ -24,6 +24,14 @@ public class Board {
         this.init_energy = energy;
     }
 
+    public int GetRows() {
+        return this.rows;
+    }
+
+    public int GetColumns() {
+        return this.columns;
+    }
+    
     public void PrintBoard() {
         for (int i = 0; i < rows ; i++) {
             for (int j = 0; j < columns; j++) {
