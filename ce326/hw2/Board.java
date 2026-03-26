@@ -19,7 +19,7 @@ public class Board {
     public void AddToBoard(int row, int column, String ObjToAdd) {
         this.gameboard[row][column] = ObjToAdd;
     }
-
+//eeee
     public void SetEnergy(int energy) {
         this.init_energy = energy;
     }
@@ -31,7 +31,7 @@ public class Board {
     public int GetColumns() {
         return this.columns;
     }
-    
+
     public void PrintBoard() {
         for (int i = 0; i < rows ; i++) {
             for (int j = 0; j < columns; j++) {
