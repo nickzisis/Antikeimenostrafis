@@ -48,8 +48,8 @@ public class JSONparser {
             GameBoard.SetEnergy(init_energy);
 
             for (int i = 1; i < canvas.length() ; i++) {
-                System.out.print(i);
-                System.out.print(i);
+                System.out.println(i + ((i / columns)) + (i % columns) + "\n");
+
                 GameBoard.AddToBoard((i / columns), (i % columns), canvas.getString(i));
             }
             GameBoard.PrintBoard();
