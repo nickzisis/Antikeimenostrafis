@@ -1,13 +1,11 @@
 package ce326.hw2;
 
 import java.util.Scanner;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class HW2 {
     public static void main(String[] args) {
-        //eeeeeeeeee
         String userInput;
         Scanner scanner = new Scanner(System.in);
         printInitialMenu();
@@ -44,7 +42,7 @@ public class HW2 {
             
             printMenu();
         } while (true);
-
+        
         scanner.close();
     }
 

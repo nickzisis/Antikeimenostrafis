@@ -6,7 +6,6 @@ import java.nio.file.Paths;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
 public class JSONparser {
     public static void ErrorChecker(String filename) {
         try {
@@ -25,6 +24,14 @@ public class JSONparser {
             if((rows <= 0) || (columns <= 0) || (init_energy <= 0) || (canvas.length() != (rows * columns))) {
                 System.out.println("Invalid information in file '" + filename + "'");
             }
+
+            /*for (int i = 0; i < rows; i++) {
+                for(int j = 0; j<columns; j++) {
+                    System.out.print(canvas.get(i+j));
+                    System.out.print(" ");
+                }
+                System.out.print("\n");
+            }*/
         }
         catch (IOException e) {
             System.out.println("Unable to read '" + filename + "'");

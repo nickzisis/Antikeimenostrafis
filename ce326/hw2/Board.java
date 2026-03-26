@@ -23,6 +23,10 @@ public class Board {
         this.gameboard[row][column] = ObjToAdd;
     }
 
+    public String getCell(int row, int column) {
+       return(this.gameboard[row][column]);
+    }
+
     public void SetEnergy(int energy) {
         this.init_energy = energy;
     }
