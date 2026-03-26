@@ -1,0 +1,6 @@
+{
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "ce326/hw2/json-20240303.jar"
+    ]
+}
