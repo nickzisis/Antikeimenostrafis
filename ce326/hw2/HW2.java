@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class HW2 {
     public static void main(String[] args) {
-        
+        //eeeeeeeeee
         String userInput;
         Scanner scanner = new Scanner(System.in);
         printInitialMenu();
