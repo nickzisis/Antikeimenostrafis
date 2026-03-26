@@ -4,6 +4,7 @@ public class Board {
     private int rows;
     private int columns;
     private int init_energy;
+    private int shield = 0;
     private String[][] gameboard = {};
     private static final String RESET = "\u001b[0m";
     private static final String RED = "\u001b[31m";
@@ -14,6 +15,7 @@ public class Board {
     public Board(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
+        this.gameboard = new String[rows][columns];
     }
 
     public void AddToBoard(int row, int column, String ObjToAdd) {
@@ -24,6 +26,10 @@ public class Board {
         this.init_energy = energy;
     }
 
+    public void SetShield(int shield) {
+        this.shield = shield;
+    }
+
     public int GetRows() {
         return this.rows;
     }
@@ -32,12 +38,20 @@ public class Board {
         return this.columns;
     }
 
+    public int GetEnergy() {
+        return this.init_energy;
+    }
+
+    public int GetShield() {
+        return this.shield;
+    }
+
     public void PrintBoard() {
         for (int i = 0; i < rows ; i++) {
             for (int j = 0; j < columns; j++) {
                 if (gameboard[i][j].length() > 1) {
-                    String content = gameboard[i][j].substring(1);
-                    char colorChar = gameboard[i][j].charAt(0);
+                    String content = gameboard[i][j].substring(0);
+                    char colorChar = gameboard[i][j].charAt(1);
                     String colorCode = RESET;
 
                     switch (colorChar) {
