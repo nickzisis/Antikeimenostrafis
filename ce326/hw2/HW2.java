@@ -4,7 +4,6 @@ import java.util.Scanner;
 
 public class HW2 {
     public static void main(String[] args) {
-        //eeeeeeeeee
         String userInput;
         Scanner scanner = new Scanner(System.in);
         printInitialMenu();
@@ -38,9 +37,9 @@ public class HW2 {
                     System.out.println("Invalid option\n");
                     break;
             }
-            
+            printMenu();
         } while (true);
-
+        
         scanner.close();
     }
 
@@ -50,7 +49,7 @@ public class HW2 {
         System.out.println("Your option: ");
     }
 
-     private static void printMenu() {
+    private static void printMenu() {
         System.out.println("- Load New Game  (L/l)");
         System.out.println("- Continue game  (C/c)");
         System.out.println("- Quit           (Q/q)\n");

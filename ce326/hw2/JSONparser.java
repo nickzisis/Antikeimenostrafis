@@ -25,6 +25,14 @@ public class JSONparser {
             if((rows <= 0) || (columns <= 0) || (init_energy <= 0) || (canvas.length() != (rows * columns))) {
                 System.out.println("Invalid information in file '" + filename + "'");
             }
+
+            /*for (int i = 0; i < rows; i++) {
+                for(int j = 0; j<columns; j++) {
+                    System.out.print(canvas.get(i+j));
+                    System.out.print(" ");
+                }
+                System.out.print("\n");
+            }*/
         }
         catch (IOException e) {
             System.out.println("Unable to read '" + filename + "'");
@@ -47,9 +55,7 @@ public class JSONparser {
             Board GameBoard = new Board(rows, columns);
             GameBoard.SetEnergy(init_energy);
 
-            for (int i = 1; i < canvas.length() ; i++) {
-                System.out.println(i + ((i / columns)) + (i % columns) + "\n");
-
+            for (int i = 0; i < canvas.length() ; i++) {
                 GameBoard.AddToBoard((i / columns), (i % columns), canvas.getString(i));
             }
             GameBoard.PrintBoard();
