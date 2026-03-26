@@ -5,6 +5,7 @@ public class Board {
     private int columns;
     private int init_energy;
     private int shield = 0;
+    private String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
     private String[][] gameboard = {};
     private static final String RESET = "\u001b[0m";
     private static final String RED = "\u001b[31m";
@@ -21,7 +22,7 @@ public class Board {
     public void AddToBoard(int row, int column, String ObjToAdd) {
         this.gameboard[row][column] = ObjToAdd;
     }
-//eeee
+
     public void SetEnergy(int energy) {
         this.init_energy = energy;
     }
@@ -47,28 +48,35 @@ public class Board {
     }
 
     public void PrintBoard() {
-        for (int i = 0; i < rows ; i++) {
-            for (int j = 0; j < columns; j++) {
+        for (int i = -1; i < this.rows ; i++) {
+            if (i == -1) {
+                System.out.print("  ");
+                for (int j = 0; j < this.columns; j++) {
+                    System.out.print(j+1 + " ");
+                }
+                System.out.println();
+                continue;
+            }
+            System.out.print(this.alphabet[i] + " ");
+            for (int j = 0; j < this.columns; j++) {
                 if (gameboard[i][j].length() > 1) {
-                    String content = gameboard[i][j].substring(0);
+                    char content = gameboard[i][j].charAt(0);
                     char colorChar = gameboard[i][j].charAt(1);
-                    String colorCode = RESET;
-
-                    switch (colorChar) {
-                    case 'b': colorCode = BLUE; break;
-                    case 'g': colorCode = GREEN; break;
-                    case 'r': colorCode = RED; break;
-                    case 'y': colorCode = YELLOW; break;
-                    default:  colorCode = RESET; break;
-                    }
-
+                    String colorCode = switch (colorChar) {
+                        case 'b' -> BLUE;
+                        case 'g' -> GREEN;
+                        case 'r' -> RED;
+                        case 'y' -> YELLOW;
+                        default -> RESET;
+                    };
                     System.out.print(colorCode + content + RESET + " ");
                 }
                 else {
-                    String content = gameboard[i][j].substring(0);
+                    char content = gameboard[i][j].charAt(0);
                     System.out.print(content + " ");
                 }
             }
+            System.out.println();
         }
     }
 }

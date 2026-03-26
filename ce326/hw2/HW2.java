@@ -76,8 +76,6 @@ public class HW2 {
         currState.put("canvas", gameBoard);
 
         moveHistory.put(currState);
-
-        
         
     }
 }
