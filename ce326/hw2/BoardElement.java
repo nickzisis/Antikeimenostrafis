@@ -13,4 +13,13 @@ public abstract class BoardElement {
     public String getSymbol() {
         return this.symbol;
     }
+
+    public void setPosition(int row, int column) {
+        this.position[0] = row;
+        this.position[1] = column;
+    }
+
+    public int[] getPosition() {
+        return this.position;
+    }
 }   

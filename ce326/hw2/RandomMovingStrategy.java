@@ -5,7 +5,7 @@ import java.util.Random;
 public class RandomMovingStrategy implements GhostMovingStrategy{
     
     @Override
-    public int[] NextMove(Board gameBoard, boolean ChasedByActor, int startRow, int startColumn) {
+    public int[] nextMove(Board gameBoard, boolean ChasedByActor, int startRow, int startColumn) {
         int[] nextMove = new int[2];
         int[] canGo = {0,1,2,3};
         Position content;
@@ -13,13 +13,17 @@ public class RandomMovingStrategy implements GhostMovingStrategy{
         do {
             int rndGo = new Random().nextInt(canGo.length);
             switch (rndGo) {
-                case 1 -> {
+                case 0 -> {
                     nextMove[0] = startRow + 1;
                     nextMove[1] = startColumn;
                 }
-                case 2 -> {
+                case 1 -> {
                     nextMove[0] = startRow - 1;
                     nextMove[1] = startColumn;
+                }
+                case 2 -> {
+                    nextMove[0] = startRow;
+                    nextMove[1] = startColumn + 1;
                 }
                 case 3 -> {
                     nextMove[0] = startRow;
