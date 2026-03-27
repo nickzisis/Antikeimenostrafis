@@ -59,7 +59,6 @@ public class HW2 {
     }
 
     private static void gameLoop(Board gameBoard) {
-        
         int rows = gameBoard.GetRows();
         int columns = gameBoard.GetColumns();
         int energy = gameBoard.GetEnergy();
@@ -68,8 +67,7 @@ public class HW2 {
         boolean gameOver = false, enableDebug = false, legalMove = false;
         String userInput;
         ArrayList<Ghost> ghosts = gameBoard.getGhosts();
-
-
+        JSONArray moveHistory = new JSONArray();
 
         while (!gameOver) {
             
@@ -77,81 +75,70 @@ public class HW2 {
                 gameBoard.printDebugInfo();
             }
             
+            System.out.println("Energy: " + gameBoard.getActorCurrentEnergy() + " Shield: " + gameBoard.getActorCurrentShield());
             gameBoard.PrintBoard();
             userInput = userInputString(gameBoard);
             
-            if(userInput.length() < 2) {
+            if(userInput.length() == 1) {
                 switch (userInput.toLowerCase()) {
-                    case "y" -> enableDebug = true;
-                    case "x" -> {
-                        //saves and goes back to the menu
-                        return;
-                    }
-                    case "z" -> {
-                        //undoes
+                    case "y" -> {
+                        enableDebug = !enableDebug;
+                        System.out.println("Debug mode: " + (enableDebug ? "ON" : "OFF"));
                         continue;
                     }
+                    case "x" -> { return; }
+                    case "z" -> { continue; } // Undo
                     default -> {
                         System.out.println("Invalid input. Try again...");
                         continue;
                     }
                 }
             }
-            else {
+            else if (userInput.length() >= 2) {
+                if (Character.isDigit(userInput.charAt(0)) || Character.isLetter(userInput.charAt(1))) {
+                    System.out.println("Invalid input format. Must be Letter+Number (e.g. A2). Try again...");
+                    continue;
+                }
+                
                 legalMove = gameBoard.moveActor(userInput);
                 if (!legalMove) {
                     System.out.println("Invalid move. Try again...");
-                    continue;
+                    continue; 
                 }
-                // ghosts move
-                for (Ghost ghost : ghosts) {
-                    
-                }
+                
+                moves++;
+            }
+            else {
+                System.out.println("Invalid input. Try again...");
+                continue;
             }
 
+            if (gameBoard.getActorCurrentEnergy() <= 0) {
+                gameBoard.PrintBoard();
+                System.out.println("YOU LOST\n");
+                gameOver = true;
+                break;
+            }
 
-
-            //For the undo
-            JSONArray moveHistory = new JSONArray();
+            // for the undo
             JSONObject currState = new JSONObject();
             currState.put("move", moves);
-            currState.put("energy", energy);
-            currState.put("shield", shield);
+            currState.put("energy", gameBoard.getActorCurrentEnergy()); 
+            currState.put("shield", gameBoard.GetShield());
             currState.put("canvas", gameBoard);
             moveHistory.put(currState);
         }
     }
+    
 
     private static String userInputString(Board gameBoard) {
-        String userInput;
         int toASCII = 65;
         Scanner scanner = new Scanner(System.in);
 
-        //Make a function for the print
-        while(true) {
-            System.out.print("Enter move [A-" + (char)(toASCII + gameBoard.GetRows() - 1) + "]: ");
-            System.out.print("[1- " + (gameBoard.GetColumns()) + "] ");
-            System.out.print("or command (Z/X/Y for undo/exit/debug): \n");
-            
-            userInput = scanner.nextLine().trim();
-            if(userInput.length() > 2) {
-                System.out.println("Invalid input. Try again...");
-            }
-            else if ((userInput.length() == 2) && (Character.isDigit(userInput.charAt(0)))) {
-                System.out.println("Invalid input. Try again...");
-            }
-            else if ((userInput.length() == 2) && (Character.isLetter(userInput.charAt(1)))) {
-                System.out.println("Invalid input. Try again...");
-            }
-            else if ((!userInput.equalsIgnoreCase("x")) || 
-                        (!userInput.equalsIgnoreCase("y")) || 
-                        (!userInput.equalsIgnoreCase("z"))) {
-                        System.out.println("Invalid input. Try again...");
-            }
-            else {
-                break;
-            }
-        }
-        return userInput;
+        System.out.print("Enter move [A-" + (char)(toASCII + gameBoard.GetRows() - 1) + "]: ");
+        System.out.print("[1- " + (gameBoard.GetColumns()) + "] ");
+        System.out.print("or command (Z/X/Y for undo/exit/debug): \n");
+           
+        return scanner.nextLine().trim();
     }
 }

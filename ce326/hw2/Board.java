@@ -21,6 +21,12 @@ public class Board {
         this.rows = rows;
         this.columns = columns;
         this.gameboard = new Position[rows][columns];
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                this.gameboard[i][j] = new Position(i, j, false); 
+            }
+        }
     }
 
     public void AddToBoard(int row, int column, BoardElement ObjToAdd) {
@@ -111,13 +117,112 @@ public class Board {
     }
 
     public boolean moveActor(String userInput) {
-        boolean legalMove;
         int row, column;
+        Position newPosition;
+        int[] actorPos = getActorPosition();
 
-        row = rowMatcher(userInput.charAt(0));
+        row = rowMatcher(userInput.toLowerCase().charAt(0));
         column = Character.getNumericValue(userInput.charAt(1)) - 1;
 
+        if ((row >= this.rows) || (row < 0)) {
+            System.out.println("Invalid number of rows! Try again.");
+            return false;
+        }
+        if ((column >= this.columns) || (column < 0)) {
+            System.out.println("Invalid number of columns! Try again.");
+            return false;
+        }
 
+        newPosition = this.gameboard[row][column];
+        if(!isValidMove(newPosition)){
+            return false;
+        }
+
+        Position oldPosition = this.gameboard[actorPos[0]][actorPos[1]];
+        Actor theActor = null;
+        
+        for (BoardElement element : oldPosition.getAllContents()) {
+            if (element instanceof Actor actor) {
+                theActor = actor;
+                break;
+            }
+        }
+
+        if(theActor != null) {
+
+            if (theActor.getShield() > 0) {
+                theActor.removeShield(1);
+            } else {
+                theActor.removeEnergy(1);
+            }
+
+            oldPosition.removeContent(theActor);
+            newPosition.addContent(theActor);
+            newPosition.setVisited(true);        
+        }
+        else {
+            System.out.println("Error with the Actor's movement, try again.");
+            return false;
+        }
+
+        BoardElement tempElement = null;
+        
+        for (BoardElement element : newPosition.getAllContents()) {
+            if (element == null) {
+                break;
+            }
+
+            if (element instanceof Consumable item) {
+
+                int energyGain = item.gainEnergy();
+                int shieldGain = item.gainShield();
+
+                theActor.addEnergy(energyGain);
+                theActor.addShield(shieldGain);
+
+                tempElement = element;
+                break;
+            }
+
+            if (element.getSymbol().startsWith("@")) {
+                if(theActor.getShield() > 0) {
+                    tempElement = element;
+                }
+                else {
+                    theActor.removeEnergy(theActor.getEnergy());
+                }
+            }
+        }
+
+        if (tempElement != null) {
+            newPosition.removeContent(tempElement);
+        }
+
+        return true;
+    }
+
+    private boolean isValidMove(Position newPosition) {
+        int[] actorPos;
+        actorPos = getActorPosition();
+
+        if (newPosition.isObstacle()) {
+            System.out.println("You can't go to an obstacle! Try again.");
+            return false;
+        }
+
+        int rowabs = Math.abs(newPosition.getRow() - actorPos[0]);
+        int colabs = Math.abs(newPosition.getColumn() - actorPos[1]);
+
+        if ((rowabs > 1) && (rowabs != this.rows - 1)) {
+            System.out.println("Oops thats too far! Try again.");
+            return false;
+        }
+        
+        if ((colabs > 1) && (colabs != this.columns - 1)) {
+            System.out.println("Oops thats too far! Try again.");
+            return false;
+        }
+        
         return true;
     }
 
@@ -147,6 +252,40 @@ public class Board {
             }
         }
         return null; 
+    }
+
+    public int getActorCurrentEnergy() {
+        int[] pos = getActorPosition();
+        
+        if (pos == null) {
+            return 0; 
+        }
+
+        Position currentPos = this.gameboard[pos[0]][pos[1]];
+        for (BoardElement element : currentPos.getAllContents()) {
+            if (element instanceof Actor actor) {
+                return actor.getEnergy();
+            }
+        }
+        
+        return 0; 
+    }
+
+    public int getActorCurrentShield() {
+        int[] pos = getActorPosition();
+        
+        if (pos == null) {
+            return 0; 
+        }
+
+        Position currentPos = this.gameboard[pos[0]][pos[1]];
+        for (BoardElement element : currentPos.getAllContents()) {
+            if (element instanceof Actor actor) {
+                return actor.getShield();
+            }
+        }
+        
+        return 0; 
     }
 
     public void printDebugInfo() {
