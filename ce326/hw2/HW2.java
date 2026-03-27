@@ -3,6 +3,7 @@ package ce326.hw2;
 import java.util.Scanner;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.ArrayList;
 
 public class HW2 {
     public static void main(String[] args) {
@@ -10,13 +11,11 @@ public class HW2 {
         Scanner scanner = new Scanner(System.in);
         printInitialMenu();
         do { 
-           
             userInput = scanner.nextLine();
             if (userInput.length() > 1) {
                 System.out.println("Invalid option\n");
                 continue;
             }
-            
             if(userInput.trim().equalsIgnoreCase("q")) {
                 break;
             }
@@ -68,14 +67,16 @@ public class HW2 {
         int moves = 0;
         boolean gameOver = false, enableDebug = false, legalMove = false;
         String userInput;
-        
+        ArrayList<Ghost> ghosts = gameBoard.getGhosts();
+
+
 
         while (!gameOver) {
-            /*
+            
             if(enableDebug) {
-                PrintDebugMenu();
+                gameBoard.printDebugInfo();
             }
-            */
+            
             gameBoard.PrintBoard();
             userInput = userInputString(gameBoard);
             
@@ -102,7 +103,10 @@ public class HW2 {
                     System.out.println("Invalid move. Try again...");
                     continue;
                 }
-                
+                // ghosts move
+                for (Ghost ghost : ghosts) {
+                    
+                }
             }
 
 

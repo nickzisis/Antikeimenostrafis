@@ -16,7 +16,7 @@ public class OptimalPathMovingStrategy implements GhostMovingStrategy {
         for(int i = 0; i < r; i++){
             for(int j = 0; j < c; j++){
                 Position content = gameBoard.getCell(i, j);
-                grid[i][j] = content.isObstacle() ? -1 : 1;
+                grid[i][j] = (content.isObstacle() || content.hasGhost()) ? -1 : 1;
                 if (content.getAllContents().size() > 0) {
                     for (BoardElement element : content.getAllContents()) {
                         if (element instanceof Actor) {

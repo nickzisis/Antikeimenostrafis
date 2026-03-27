@@ -1,5 +1,9 @@
 package ce326.hw2;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
+
 public class Board {
     private int rows;
     private int columns;
@@ -145,17 +149,85 @@ public class Board {
         return null; 
     }
 
-    private void printDebugInfo() {
+    public void printDebugInfo() {
         int [][] debugGrid = new int[this.rows][this.columns];
-        int endRow = 0;
+        int[] actorPosition = getActorPosition();
         for(int i = 0; i < this.rows; i++){
             for (int j = 0; j < this.columns; j++){
                 if (this.gameboard[i][j].isObstacle()) {
                     debugGrid[i][j] = -1;
-                }   
-        
-            
+                } else {
+                    debugGrid[i][j] = 100;
+                }  
             }
         }
+
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(actorPosition);
+        debugGrid[actorPosition[0]][actorPosition[1]] = 0;
+
+        int[] x = {0, 0, 1, -1}; // right, left, down, up
+        int[] y = {1, -1, 0, 0};
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            for (int i = 0; i < 4; i++) {
+                int newRow = current[0] + x[i];
+                int newCol = current[1] + y[i];
+
+                if (newRow >= this.rows) { newRow = 0; }
+                if (newRow < 0) { newRow = this.rows - 1; }
+                if (newCol >= this.columns) { newCol = 0; }
+                if (newCol < 0) { newCol = this.columns - 1; }
+
+                if (debugGrid[newRow][newCol] != -1 && debugGrid[newRow][newCol] > debugGrid[current[0]][current[1]] + 1) {
+                    debugGrid[newRow][newCol] = debugGrid[current[0]][current[1]] + 1;
+                    queue.add(new int[]{newRow, newCol});
+                }
+            }
+        }
+
+        for (int i = -1; i < this.rows; i++) {
+            if (i == -1) {
+                System.err.print("   ");
+                for (int j = 0; j < this.columns; j++) {
+                    System.err.print(j + 1 + "  ");
+                }
+                System.err.println();
+                System.err.print(" ");
+                for (int j = 0; j < this.columns; j++) {
+                    System.err.print("---");
+                }
+                System.err.println();
+                continue;
+            }
+            System.err.print(this.alphabet[i] + "  ");
+            for (int j = 0; j < this.columns; j++) {
+                switch (debugGrid[i][j]) {
+                    case -1 -> System.err.print("#  ");
+                    case 100 -> System.err.print("?  ");
+                    default -> System.err.print(debugGrid[i][j] + "  ");
+                }
+            }
+            System.err.println();
+        }
+    }
+
+    public ArrayList<Ghost>getGhosts(){
+        ArrayList<Ghost> ghosts = new ArrayList<>();
+
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++) {
+                Position currentPos = this.gameboard[i][j];
+                if (!currentPos.getAllContents().isEmpty()) {
+                    for (BoardElement element : currentPos.getAllContents()) {
+                        if (element instanceof Ghost) {
+                            ghosts.add((Ghost) element);
+                        }
+                    }
+                }
+            }
+        }
+        return ghosts;
     }
 }

@@ -53,7 +53,7 @@ public class RandomMovingStrategy implements GhostMovingStrategy{
 
             content = gameBoard.getCell(nextMove[0], nextMove[1]);
 
-        } while (content.isObstacle());
+        } while (content.isObstacle() || content.hasGhost());
 
         return nextMove;
     }
