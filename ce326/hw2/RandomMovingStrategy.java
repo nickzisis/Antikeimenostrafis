@@ -13,19 +13,19 @@ public class RandomMovingStrategy implements GhostMovingStrategy{
         do {
             int rndGo = new Random().nextInt(canGo.length);
             switch (rndGo) {
-                case 0 -> {
+                case 1 -> {
                     nextMove[0] = startRow + 1;
                     nextMove[1] = startColumn;
                 }
-                case 1 -> {
+                case 2 -> {
                     nextMove[0] = startRow - 1;
                     nextMove[1] = startColumn;
                 }
-                case 2 -> {
+                case 3 -> {
                     nextMove[0] = startRow;
                     nextMove[1] = startColumn + 1;
                 }
-                case 3 -> {
+                case 4 -> {
                     nextMove[0] = startRow;
                     nextMove[1] = startColumn - 1;
                 }
