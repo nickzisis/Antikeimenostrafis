@@ -125,4 +125,37 @@ public class Board {
         }
         return row;
     }
+
+    private int[] getActorPosition() {
+        int[] position = new int[2];
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++) {
+                Position currentPos = this.gameboard[i][j];
+                if (!currentPos.getAllContents().isEmpty()) {
+                    for (BoardElement element : currentPos.getAllContents()) {
+                        if (element instanceof Actor) {
+                            position[0] = i;
+                            position[1] = j;
+                            return position;
+                        }
+                    }
+                }
+            }
+        }
+        return null; 
+    }
+
+    private void printDebugInfo() {
+        int [][] debugGrid = new int[this.rows][this.columns];
+        int endRow = 0;
+        for(int i = 0; i < this.rows; i++){
+            for (int j = 0; j < this.columns; j++){
+                if (this.gameboard[i][j].isObstacle()) {
+                    debugGrid[i][j] = -1;
+                }   
+        
+            
+            }
+        }
+    }
 }
