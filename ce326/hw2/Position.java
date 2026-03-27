@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Position {
     private int row;
     private int column;
-    private ArrayList<Object> content;
+    private ArrayList<BoardElement> content;
     private boolean HasVisited;
     private boolean IsObstacle;
 
@@ -17,11 +17,11 @@ public class Position {
         this.content = new ArrayList<>();
     }
 
-    public void addContent(Object obj) {
+    public void addContent(BoardElement obj) {
         this.content.add(obj);
     }
 
-    public void removeContent(Object obj) {
+    public void removeContent(BoardElement obj) {
         this.content.remove(obj);
     }
 
