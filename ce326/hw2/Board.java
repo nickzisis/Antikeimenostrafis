@@ -105,4 +105,24 @@ public class Board {
             System.out.println();
         }
     }
+
+    public boolean moveActor(String userInput) {
+        boolean legalMove;
+        int row, column;
+
+        row = rowMatcher(userInput.charAt(0));
+        column = Character.getNumericValue(userInput.charAt(1)) - 1;
+
+
+        return true;
+    }
+
+    private int rowMatcher(char rowChar) {
+        int row = 0;
+
+        for (char c = 'a' ; c < rowChar ; c++) {
+            row++;
+        }
+        return row;
+    }
 }

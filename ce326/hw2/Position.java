@@ -46,13 +46,10 @@ public class Position {
     }
 
     public boolean hasGhost() {
-        for (BoardElement element : this.content) {
-            if (element.getSymbol().startsWith("@")) {
-                return true;
+        for (BoardElement element : this.content) {            
+            if (element instanceof Ghost) { 
+                return true; 
             }
-            
-            // ΕΝΑΛΛΑΚΤΙΚΑ (πιο σωστό σε OOP αν έχεις φτιάξει κλάση Ghost):
-            // if (element instanceof Ghost) { return true; }
         }
         return false;
     }
