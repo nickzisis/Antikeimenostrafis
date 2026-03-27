@@ -8,7 +8,7 @@ public class RandomMovingStrategy implements GhostMovingStrategy{
     public int[] NextMove(Board gameBoard, boolean ChasedByActor, int startRow, int startColumn) {
         int[] nextMove = new int[2];
         int[] canGo = {0,1,2,3};
-        PositionContent content;
+        Position content;
 
         do {
             int rndGo = new Random().nextInt(canGo.length);
@@ -47,9 +47,9 @@ public class RandomMovingStrategy implements GhostMovingStrategy{
                 nextMove[1] = 0;
             }
 
-            content = new PositionContent(nextMove[0], nextMove[1], gameBoard.getCell(nextMove[0], nextMove[1]));
+            content = gameBoard.getCell(nextMove[0], nextMove[1]);
 
-        } while (content.GetContent().equals("#"));
+        } while (content.isObstacle());
 
         return nextMove;
     }

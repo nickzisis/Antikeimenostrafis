@@ -6,7 +6,7 @@ public class Board {
     private int init_energy;
     private int shield = 0;
     private String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
-    private String[][] gameboard = {};
+    private Position[][] gameboard = {};
     private static final String RESET = "\u001b[0m";
     private static final String RED = "\u001b[31m";
     private static final String GREEN = "\u001b[32m";
@@ -16,14 +16,14 @@ public class Board {
     public Board(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
-        this.gameboard = new String[rows][columns];
+        this.gameboard = new Position[rows][columns];
     }
 
-    public void AddToBoard(int row, int column, String ObjToAdd) {
-        this.gameboard[row][column] = ObjToAdd;
+    public void AddToBoard(int row, int column, BoardElement ObjToAdd) {
+        this.gameboard[row][column].addContent(ObjToAdd);
     }
 
-    public String getCell(int row, int column) {
+    public Position getCell(int row, int column) {
        return(this.gameboard[row][column]);
     }
 
@@ -63,9 +63,33 @@ public class Board {
             }
             System.out.print(this.alphabet[i] + " ");
             for (int j = 0; j < this.columns; j++) {
-                if (gameboard[i][j].length() > 1) {
-                    char content = gameboard[i][j].charAt(0);
-                    char colorChar = gameboard[i][j].charAt(1);
+                Position currentPos = this.gameboard[i][j];
+                String symbolToPrint = "-"; 
+
+                if (currentPos.isObstacle()) {
+                    symbolToPrint = "#";
+                } 
+                else if (!currentPos.getAllContents().isEmpty()) {
+                    symbolToPrint = currentPos.getAllContents().get(0).getSymbol();
+                    
+                    for (BoardElement element : currentPos.getAllContents()) {
+                        String sym = element.getSymbol();
+                        if (sym.startsWith("@")) {
+                            symbolToPrint = sym;
+                        }
+                        if (sym.equals("X")) {
+                            symbolToPrint = sym;
+                            break; 
+                        }
+                    }
+                } 
+                else if (currentPos.hasVisited()) {
+                    symbolToPrint = " ";
+                }
+
+                if (symbolToPrint.length() > 1) {
+                    char content = symbolToPrint.charAt(0);
+                    char colorChar = symbolToPrint.charAt(1);
                     String colorCode = switch (colorChar) {
                         case 'b' -> BLUE;
                         case 'g' -> GREEN;
@@ -74,10 +98,8 @@ public class Board {
                         default -> RESET;
                     };
                     System.out.print(colorCode + content + RESET + " ");
-                }
-                else {
-                    char content = gameboard[i][j].charAt(0);
-                    System.out.print(content + " ");
+                } else {
+                    System.out.print(symbolToPrint + " ");
                 }
             }
             System.out.println();

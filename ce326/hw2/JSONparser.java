@@ -55,9 +55,26 @@ public class JSONparser {
             GameBoard.SetEnergy(init_energy);
 
             for (int i = 0;  i < canvas.length() ; i++) {
-                System.out.println(i + ((i / columns)) + (i % columns) + "\n");
+                int row = i / columns;
+                int column = i % columns;
+                String symbol = canvas.getString(i);
 
-                GameBoard.AddToBoard((i / columns), (i % columns), canvas.getString(i));
+                Position curPosition = GameBoard.getCell(row, column);
+                if (symbol.equals("#")) {
+                    curPosition.setObstacle(true);
+                } 
+                else if (symbol.equals("X")) {
+                    curPosition.addContent(new Actor(row, column, init_energy));
+                }
+                else if (symbol.charAt(0) == '@') {
+                    curPosition.addContent(new Ghost(row, column, symbol));
+                }
+                else if (symbol.equals("$")) {
+                    curPosition.addContent(new Food(row, column, symbol , symbol.charAt(1)));
+                }
+                else if (symbol.equals("?")) {
+                    curPosition.addContent(new MagicShield(row, column, symbol, symbol.charAt(1)));
+                }
             }
             GameBoard.PrintBoard();
             return GameBoard;

@@ -1,10 +1,12 @@
 package ce326.hw2;
 
-public class Food implements Consumable {
+public class Food extends BoardElement implements Consumable {
     private int energyGain;
     private int shieldGain;
 
-    public Food(Character type){
+    public Food(int row,  int column, String symbol, Character type){
+        super(row, column, symbol);
+        
         switch (type){
             case 'r' -> this.energyGain = 14;
             case 'b' -> this.energyGain = 10;

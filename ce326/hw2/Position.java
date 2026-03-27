@@ -6,14 +6,14 @@ public class Position {
     private int row;
     private int column;
     private ArrayList<BoardElement> content;
-    private boolean HasVisited;
-    private boolean IsObstacle;
+    private boolean hasVisited;
+    private boolean isObstacle;
 
     public Position(int row, int column, boolean isObstacle) {
         this.row = row;
         this.column = column;
-        this.IsObstacle = isObstacle;
-        this.HasVisited = false;
+        this.isObstacle = isObstacle;
+        this.hasVisited = false;
         this.content = new ArrayList<>();
     }
 
@@ -33,5 +33,35 @@ public class Position {
         return this.column;
     }   
 
+    public ArrayList<BoardElement> getAllContents() {
+        return this.content;
+    }
 
+    public void setObstacle(boolean isObstacle) {
+        this.isObstacle = isObstacle;
+    }
+
+    public boolean isObstacle() {
+        return this.isObstacle;
+    }
+
+    public boolean hasGhost() {
+        for (BoardElement element : this.content) {
+            if (element.getSymbol().startsWith("@")) {
+                return true;
+            }
+            
+            // ΕΝΑΛΛΑΚΤΙΚΑ (πιο σωστό σε OOP αν έχεις φτιάξει κλάση Ghost):
+            // if (element instanceof Ghost) { return true; }
+        }
+        return false;
+    }
+
+    public void setVisited(boolean visited) {
+        this.hasVisited = visited;
+    }
+    
+    public boolean hasVisited() {
+        return this.hasVisited;
+    }
 }

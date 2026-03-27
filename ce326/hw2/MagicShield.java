@@ -1,10 +1,12 @@
 package ce326.hw2;
 
-public class MagicShield implements Consumable {
+public class MagicShield extends BoardElement implements Consumable {
     private int energyGain;
     private int shieldGain;
 
-    public MagicShield(Character type){
+    public MagicShield(int row, int column, String symbol, Character type){
+        super(row, column, symbol); 
+        
         switch (type){
             case 'r' -> this.shieldGain = 6;
             case 'b' -> this.shieldGain = 3;
