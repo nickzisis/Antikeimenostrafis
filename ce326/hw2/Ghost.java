@@ -13,7 +13,7 @@ public class Ghost extends BoardElement {
     }
 
     public int[] NextMove(Board gameBoard, boolean ChasedByActor) {
-        return this.strategy.NextMove(gameBoard, ChasedByActor, this.getPosition()[0], this.getPosition()[1]);
+        return this.strategy.nextMove(gameBoard, ChasedByActor, this.getPosition()[0], this.getPosition()[1]);
     }
 
     public void setPosition(int row, int column) {
