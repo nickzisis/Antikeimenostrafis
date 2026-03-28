@@ -22,4 +22,12 @@ public abstract class BoardElement {
     public int[] getPosition() {
         return this.position;
     }
+
+    public int getRow() {
+        return this.position[0];
+    }
+
+    public int getColumn() {
+        return this.position[1];
+    }
 }   

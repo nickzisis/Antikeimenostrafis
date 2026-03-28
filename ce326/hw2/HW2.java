@@ -65,11 +65,13 @@ public class HW2 {
         int energy = gameBoard.GetEnergy();
         int shield = gameBoard.GetShield();
         int moves = 0;
-        boolean gameOver = false, enableDebug = false, legalMove = false;
+        int i = 0;
+        int minDist = Integer.MAX_VALUE;
+        boolean gameOver = false, enableDebug = false, legalMove = false, ChasedByActor = false;
         String userInput;
         ArrayList<Ghost> ghosts = gameBoard.getGhosts();
-
-
+        Actor actor = gameBoard.getActor();
+        int[] ghostDist = new int[ghosts.size()];
 
         while (!gameOver) {
             
@@ -103,9 +105,31 @@ public class HW2 {
                     System.out.println("Invalid move. Try again...");
                     continue;
                 }
-                // ghosts move
+                /* ########## GHOST MOVE ##########*/
+                // find the dinstance of each ghost from the actor
+                i = 0;
                 for (Ghost ghost : ghosts) {
-                    
+                    ghostDist[i] = Math.abs(actor.getRow() - ghost.getRow()) + Math.abs(actor.getColumn() - ghost.getColumn());
+                    i++;
+                }
+                // sort the ghosts by distance
+                for (i = 0; i < ghosts.size(); i++) {
+                    for (int j = 0; j < ghosts.size() - i; j++) {
+                        if (ghostDist[j] > ghostDist[j + 1]) {
+                            int tempDist = ghostDist[j];
+                            ghostDist[j] = ghostDist[j + 1];
+                            ghostDist[j + 1] = tempDist;
+
+                            Ghost tempGhost = ghosts.get(j);
+                            ghosts.set(j, ghosts.get(j + 1));
+                            ghosts.set(j + 1, tempGhost);
+                        }
+                    }
+                }
+                for (Ghost ghost : ghosts) {
+                    int[] nextMove = ghost.NextMove(gameBoard, ChasedByActor);
+                    int[] ghostPos = ghost.getPosition();
+                    if 
                 }
             }
 

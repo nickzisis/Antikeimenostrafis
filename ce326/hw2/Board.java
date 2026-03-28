@@ -230,4 +230,20 @@ public class Board {
         }
         return ghosts;
     }
+
+    public Actor getActor() {
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++) {
+                Position currentPos = this.gameboard[i][j];
+                if (!currentPos.getAllContents().isEmpty()) {
+                    for (BoardElement element : currentPos.getAllContents()) {
+                        if (element instanceof Actor) {
+                            return (Actor) element;
+                        }
+                    }
+                }
+            }
+        }
+        return null; 
+    }
 }
