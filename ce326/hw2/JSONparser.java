@@ -69,14 +69,14 @@ public class JSONparser {
                 else if (symbol.charAt(0) == '@') {
                     curPosition.addContent(new Ghost(row, column, symbol));
                 }
-                else if (symbol.equals("$")) {
+                else if (symbol.startsWith("$")) {
                     curPosition.addContent(new Food(row, column, symbol , symbol.charAt(1)));
                 }
-                else if (symbol.equals("?")) {
+                else if (symbol.startsWith("?")) {
                     curPosition.addContent(new MagicShield(row, column, symbol, symbol.charAt(1)));
                 }
             }
-            GameBoard.PrintBoard();
+
             return GameBoard;
         }
         catch(IOException e) {
