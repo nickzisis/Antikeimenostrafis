@@ -140,7 +140,7 @@ public class Board {
 
         Position oldPosition = this.gameboard[actorPos[0]][actorPos[1]];
         Actor theActor = null;
-        
+        Boolean justConsumed = false;
         for (BoardElement element : oldPosition.getAllContents()) {
             if (element instanceof Actor actor) {
                 theActor = actor;
@@ -150,55 +150,58 @@ public class Board {
 
         if(theActor != null) {
 
-            if (theActor.getShield() > 0) {
-                theActor.removeShield(1);
-            } else {
-                theActor.removeEnergy(1);
-            }
-
             oldPosition.removeContent(theActor);
             newPosition.addContent(theActor);
-            newPosition.setVisited(true);        
+            newPosition.setVisited(true);
+            theActor.setPosition(row, column);  
         }
         else {
             System.out.println("Error with the Actor's movement, try again.");
             return false;
         }
-
-        BoardElement tempElement = null;
         
         for (BoardElement element : newPosition.getAllContents()) {
             if (element == null) {
                 break;
             }
 
-            if (element instanceof Consumable item) {
-
-                int energyGain = item.gainEnergy();
-                int shieldGain = item.gainShield();
-
-                theActor.addEnergy(energyGain);
-                theActor.addShield(shieldGain);
-
-                tempElement = element;
-                break;
+            if (element instanceof Food item) {
+                theActor.addEnergy(item.gainEnergy());
+                newPosition.removeContent(item);
+            }
+            if (element instanceof MagicShield item) {
+                theActor.addShield(item.gainShield());
+                newPosition.removeContent(item);
+                justConsumed = true;
             }
 
-            if (element.getSymbol().startsWith("@")) {
+            if (element instanceof Ghost ghost) {
                 if(theActor.getShield() > 0) {
-                    tempElement = element;
+                    newPosition.removeContent(ghost);
                 }
                 else {
                     theActor.removeEnergy(theActor.getEnergy());
                 }
             }
         }
-
-        if (tempElement != null) {
-            newPosition.removeContent(tempElement);
+        if (theActor.getShield() > 0 && !justConsumed) {
+            theActor.removeShield(1);
+        } else {
+            theActor.removeEnergy(1);
+            justConsumed = false;
         }
 
         return true;
+    }
+
+    public void moveGhost(Ghost ghost, int newRow, int newColumn) {
+        Position oldPosition = this.gameboard[ghost.getRow()][ghost.getColumn()];
+        Position newPosition = this.gameboard[newRow][newColumn];
+
+        oldPosition.removeContent(ghost);
+        newPosition.addContent(ghost);
+
+        ghost.setPosition(newRow, newColumn);
     }
 
     private boolean isValidMove(Position newPosition) {
@@ -233,6 +236,10 @@ public class Board {
             row++;
         }
         return row;
+    }
+
+    public char rowMatcher(int rowInt){
+        return (char) (rowInt + 'A');
     }
 
     private int[] getActorPosition() {
@@ -384,5 +391,43 @@ public class Board {
             }
         }
         return null; 
+    }
+
+    public Board copyBoard() {
+        Board clonedBoard = new Board(this.rows, this.columns);
+        clonedBoard.SetEnergy(this.init_energy);
+        clonedBoard.SetShield(this.shield);
+
+        for (int i = 0; i < this.rows; i++) {
+            for (int j = 0; j < this.columns; j++) {
+                Position currentPos = this.gameboard[i][j];
+                Position clonedPos = new Position(i, j, currentPos.isObstacle());
+                clonedPos.setVisited(currentPos.hasVisited());
+                for (BoardElement element : currentPos.getAllContents()) {
+                    switch (element) {
+                        case Actor actor -> {
+                            Actor clonedActor = new Actor(actor.getRow(), actor.getColumn(), actor.getEnergy());
+                            clonedActor.addShield(actor.getShield());
+                            clonedPos.addContent(clonedActor);
+                        }
+                        case Ghost ghost -> {
+                            Ghost clonedGhost = new Ghost(ghost.getRow(), ghost.getColumn(), ghost.getSymbol());
+                            clonedPos.addContent(clonedGhost);
+                        }
+                        case Food food -> {
+                            Food clonedFood = new Food(food.getRow(), food.getColumn(), food.getSymbol());
+                            clonedPos.addContent(clonedFood);
+                        }
+                        case MagicShield Shield -> {
+                            MagicShield clonedShield = new MagicShield(Shield.getRow(), Shield.getColumn(), Shield.getSymbol());
+                            clonedPos.addContent(clonedShield);
+                        }
+                        default -> {}
+                    }
+                }
+                clonedBoard.gameboard[i][j] = clonedPos;
+            }
+        }
+        return clonedBoard;
     }
 }

@@ -70,10 +70,10 @@ public class JSONparser {
                     curPosition.addContent(new Ghost(row, column, symbol));
                 }
                 else if (symbol.startsWith("$")) {
-                    curPosition.addContent(new Food(row, column, symbol , symbol.charAt(1)));
+                    curPosition.addContent(new Food(row, column, symbol));
                 }
                 else if (symbol.startsWith("?")) {
-                    curPosition.addContent(new MagicShield(row, column, symbol, symbol.charAt(1)));
+                    curPosition.addContent(new MagicShield(row, column, symbol));
                 }
             }
 

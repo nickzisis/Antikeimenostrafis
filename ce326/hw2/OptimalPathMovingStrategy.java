@@ -10,25 +10,18 @@ public class OptimalPathMovingStrategy implements GhostMovingStrategy {
     public int[] nextMove(Board gameBoard, boolean ChasedByActor, int startRow, int startColumn) {
         int r = gameBoard.GetRows();
         int c = gameBoard.GetColumns();
-        int endRow = 0;
-        int endColumn = 0;
+        Actor actor = gameBoard.getActor();
+        int endRow = actor.getRow();
+        int endColumn = actor.getColumn();
         int [][] grid = new int[r][c];
+
         for(int i = 0; i < r; i++){
             for(int j = 0; j < c; j++){
                 Position content = gameBoard.getCell(i, j);
                 grid[i][j] = (content.isObstacle() || content.hasGhost()) ? -1 : 1;
-                if (content.getAllContents().size() > 0) {
-                    for (BoardElement element : content.getAllContents()) {
-                        if (element instanceof Actor) {
-                            grid[i][j] = 2; // Mark the position of the Actor
-                            endRow = i;
-                            endColumn = j;
-                            break;
-                        }
-                    }
-                }
             }
         }
+        grid[endRow][endColumn] = 2;
 
         int []x = {0,0,1,-1};//This represent 4 directions right, left, down , up
         int []y = {1,-1,0,0};

@@ -27,10 +27,6 @@ public class RandomMovingStrategy implements GhostMovingStrategy{
                 }
                 case 3 -> {
                     nextMove[0] = startRow;
-                    nextMove[1] = startColumn + 1;
-                }
-                case 4 -> {
-                    nextMove[0] = startRow;
                     nextMove[1] = startColumn - 1;
                 }
                 default -> {

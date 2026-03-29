@@ -4,10 +4,10 @@ public class MagicShield extends BoardElement implements Consumable {
     private int energyGain;
     private int shieldGain;
 
-    public MagicShield(int row, int column, String symbol, Character type){
+    public MagicShield(int row, int column, String symbol){
         super(row, column, symbol); 
         
-        switch (type){
+        switch (symbol.charAt(1)){
             case 'r' -> this.shieldGain = 6;
             case 'b' -> this.shieldGain = 3;
             default -> this.shieldGain = 0;
