@@ -70,4 +70,11 @@ public class Position {
     public boolean hasVisited() {
         return this.hasVisited;
     }
+
+    public boolean isAccessibleByGhost() {
+        if (this.hasGhost() || this.isObstacle ) {
+            return false;
+        }
+        return true;
+    }
 }

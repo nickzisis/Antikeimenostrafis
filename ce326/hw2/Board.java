@@ -371,6 +371,8 @@ public class Board {
             }
         }
 
+        boolean[][] ghostReachable = getGhostReachableCells();
+
         for (int i = -1; i < this.rows; i++) {
             if (i == -1) {
                 System.err.print("   ");
@@ -387,14 +389,53 @@ public class Board {
             }
             System.err.print(this.alphabet[i] + "  ");
             for (int j = 0; j < this.columns; j++) {
-                switch (debugGrid[i][j]) {
-                    case -1 -> System.err.print("#  ");
-                    case 100 -> System.err.print("?  ");
-                    default -> System.err.print(debugGrid[i][j] + "  ");
+                
+                if (!this.gameboard[i][j].isObstacle() && !ghostReachable[i][j]) {
+                    System.err.print("?  ");
+                } 
+                else {
+                    switch (debugGrid[i][j]) {
+                        case -1 -> System.err.print("#  ");
+                        case 100 -> System.err.print("U  "); //Unreachable by the Actor
+                        default -> System.err.print(debugGrid[i][j] + "  ");
+                    }
                 }
             }
             System.err.println();
         }
+    }
+    
+    public boolean[][] getGhostReachableCells() {
+        boolean[][] reachable = new boolean[this.rows][this.columns];
+        Queue<int[]> queue = new LinkedList<>();
+
+        for (Ghost ghost : getGhosts()) {
+            queue.add(new int[]{ghost.getRow(), ghost.getColumn()});
+            reachable[ghost.getRow()][ghost.getColumn()] = true;
+        }
+
+        int[] dRow = {0, 0, 1, -1}; 
+        int[] dCol = {1, -1, 0, 0};
+
+        while (!queue.isEmpty()) {
+            int[] current = queue.poll();
+            
+            for (int i = 0; i < 4; i++) {
+                int newRow = current[0] + dRow[i];
+                int newCol = current[1] + dCol[i];
+
+                if (newRow >= this.rows) { newRow = 0; }
+                if (newRow < 0) { newRow = this.rows - 1; }
+                if (newCol >= this.columns) { newCol = 0; }
+                if (newCol < 0) { newCol = this.columns - 1; }
+
+                if (!this.gameboard[newRow][newCol].isObstacle() && !reachable[newRow][newCol]) {
+                    reachable[newRow][newCol] = true;
+                    queue.add(new int[]{newRow, newCol});
+                }
+            }
+        }
+        return reachable;
     }
 
     public ArrayList<Ghost>getGhosts(){

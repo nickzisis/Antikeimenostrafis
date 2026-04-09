@@ -7,7 +7,7 @@ public class Actor extends BoardElement {
     public Actor(int row, int column, int energy) {
         super(row, column, "X");
         this.energy = energy;
-        this.shield = 0;
+        this.shield = 999999;
     }
 
     public int getEnergy() {

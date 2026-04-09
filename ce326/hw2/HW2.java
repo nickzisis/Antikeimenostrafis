@@ -239,7 +239,7 @@ public class HW2 {
                 }
             }
 
-            if (gameBoard.getActorCurrentEnergy() <= 0) {
+            if ((gameBoard.getCellsRemaining() > 0) && (gameBoard.getActorCurrentEnergy() <= 0)) {
                 gameBoard.PrintBoard();
                 System.out.println("You lost because of no energy! Try again!");
                 gameOver = true;
