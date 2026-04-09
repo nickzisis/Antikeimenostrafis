@@ -17,6 +17,7 @@ public class HW2 {
             userInput = scanner.nextLine();
             if (userInput.length() > 1) {
                 System.out.println("Invalid option\n");
+                printInitialMenu();
                 continue;
             }
             if(userInput.trim().equalsIgnoreCase("q")) {
@@ -41,6 +42,7 @@ public class HW2 {
                     filepath = filepathScanner.nextLine();
                     JSONparser.ErrorChecker(filepath);
                     gameBoard = JSONparser.BoardMaker(filepath);
+                    gameBoard.setCellsRemaining(gameBoard);
                     gameHistory.clear();
                     gameBoard = gameLoop(gameBoard, gameHistory);
                     break;
@@ -52,7 +54,14 @@ public class HW2 {
                 printInitialMenu();
                 continue;
             }
-            printMenu();
+
+            if((gameBoard != null) && (gameBoard.getCellsRemaining() == 0)) {
+                printInitialMenu();
+            }
+            else {
+                printMenu();
+            }
+
         } while (true);
         
         scanner.close();
@@ -83,7 +92,8 @@ public class HW2 {
         gameBoard.PrintBoard();
         userInput = userInputString(gameBoard);
 
-        while (!gameOver) {            
+        while (!gameOver) {    
+
             switch (userInput.length()) {
                 case 1 -> {
                     switch (userInput.toLowerCase()) {
@@ -122,6 +132,7 @@ public class HW2 {
                     }
                 }
                 case 2 -> {
+
                     if (Character.isDigit(userInput.charAt(0)) || Character.isLetter(userInput.charAt(1))) {
                         System.out.println("Invalid input format. Must be Letter+Number (e.g. A2). Try again...");
                         userInput = userInputString(gameBoard);
@@ -133,7 +144,7 @@ public class HW2 {
                     legalMove = gameBoard.moveActor(userInput);
                     if (!legalMove) {
                         System.out.println("Invalid move. Try again...");
-                        gameHistory.pop(); // Remove the saved state since the move was not legal
+                        gameHistory.pop();
                         userInput = userInputString(gameBoard);
                         continue;
                     }
@@ -200,7 +211,7 @@ public class HW2 {
                             } else {
                                 gameBoard.moveGhost(ghost, nextMove[0], nextMove[1]);
                                 gameBoard.PrintBoard();
-                                System.out.println("YOU LOST ghost\n");
+                                System.out.println("You lost because of a ghost killing you! Try again!\n");
                                 gameOver = true;
                                 break;     
                             }
@@ -210,6 +221,13 @@ public class HW2 {
                     if (gameOver) {
                         break;
                     }
+
+                    if (gameBoard.getCellsRemaining() == 0) {
+                        System.out.println("YOU WON! Congratulations!");
+                        gameOver = true;
+                        break;
+                    }
+
                     System.out.println("Energy: " + gameBoard.getActorCurrentEnergy() + " Shield: " + gameBoard.getActorCurrentShield());
                     gameBoard.PrintBoard();
                     userInput = userInputString(gameBoard);
@@ -223,7 +241,7 @@ public class HW2 {
 
             if (gameBoard.getActorCurrentEnergy() <= 0) {
                 gameBoard.PrintBoard();
-                System.out.println("YOU LOST energy\n");
+                System.out.println("You lost because of no energy! Try again!");
                 gameOver = true;
                 break;
             }

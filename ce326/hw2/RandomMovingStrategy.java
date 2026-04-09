@@ -34,7 +34,7 @@ public class RandomMovingStrategy implements GhostMovingStrategy{
             }
             
             if (nextMove[0] < 0) {
-                nextMove[0] = gameBoard.GetRows() - 1;;
+                nextMove[0] = gameBoard.GetRows() - 1;
             }
             if (nextMove[0] >= gameBoard.GetRows()) {
                 nextMove[0] = 0;

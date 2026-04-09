@@ -71,9 +71,11 @@ public class JSONparser {
                 }
                 else if (symbol.startsWith("$")) {
                     curPosition.addContent(new Food(row, column, symbol));
+                    curPosition.setVisited(true);
                 }
                 else if (symbol.startsWith("?")) {
                     curPosition.addContent(new MagicShield(row, column, symbol));
+                    curPosition.setVisited(true);
                 }
             }
 

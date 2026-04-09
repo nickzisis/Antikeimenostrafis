@@ -11,6 +11,7 @@ public class Board {
     private int shield = 0;
     private String[] alphabet = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
     private Position[][] gameboard = {};
+    private int cellsLeft;
     private static final String RESET = "\u001b[0m";
     private static final String RED = "\u001b[31m";
     private static final String GREEN = "\u001b[32m";
@@ -61,6 +62,36 @@ public class Board {
         return this.shield;
     }
 
+    public void setCellsRemaining(Board gameBoard) {
+        int obsCount = 0;
+        int count = 0;
+        for (int i = 0; i < GetRows(); i++) {
+            for (int j = 0; j < GetColumns(); j++) {
+                if (getPosition(i, j).isObstacle()) {
+                    obsCount++;
+                }
+
+                if (!getPosition(i, j).hasVisited()) {
+                    count++;
+                }
+            }
+        }
+
+        this.cellsLeft = count - obsCount - 1;
+    }
+
+    public int getCellsRemaining() {
+        return this.cellsLeft;
+    }
+
+    public void increaseCellsLeft() {
+        this.cellsLeft++;
+    }
+
+    public void decreaseCellsLeft() {
+        this.cellsLeft--;
+    }
+ 
     public void PrintBoard() {
         for (int i = -1; i < this.rows ; i++) {
             if (i == -1) {
@@ -139,6 +170,7 @@ public class Board {
         }
 
         Position oldPosition = this.gameboard[actorPos[0]][actorPos[1]];
+        oldPosition.setVisited(true);
         Actor theActor = null;
         Boolean justConsumed = false;
         for (BoardElement element : oldPosition.getAllContents()) {
@@ -152,8 +184,14 @@ public class Board {
 
             oldPosition.removeContent(theActor);
             newPosition.addContent(theActor);
-            newPosition.setVisited(true);
-            theActor.setPosition(row, column);  
+            if (newPosition.hasVisited()) {
+                theActor.setPosition(row, column);  
+            }
+            else {
+                newPosition.setVisited(true);
+                decreaseCellsLeft();
+                theActor.setPosition(row, column);  
+            }
         }
         else {
             System.out.println("Error with the Actor's movement, try again.");
@@ -429,5 +467,9 @@ public class Board {
             }
         }
         return clonedBoard;
+    }
+
+    public Position getPosition(int row, int column) {
+        return this.gameboard[row][column];
     }
 }

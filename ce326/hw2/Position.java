@@ -54,6 +54,15 @@ public class Position {
         return false;
     }
 
+    public boolean hasActor() {
+        for (BoardElement element : this.content) {            
+            if (element instanceof Actor) { 
+                return true; 
+            }
+        }
+        return false;
+    }
+
     public void setVisited(boolean visited) {
         this.hasVisited = visited;
     }
