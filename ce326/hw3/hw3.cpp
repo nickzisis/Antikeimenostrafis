@@ -2,6 +2,9 @@
 using namespace std;
 #include <regex>
 #include <string>
+#include "Number.hpp"
+#include "String.hpp"
+#include "ObjectArray.hpp"
 
 void parseInput(string input) {
     regex variableRegex(R"(^([a-zA-Z_][a-zA-Z0-9_]*))");
