@@ -3,8 +3,10 @@
 class Number : public Object {
     private:
         double value;
+        int value;
     public:
         Number(double val) : value(val) {}
+        Number(int val) : value(val) {}
         
         ~Number() {}
 

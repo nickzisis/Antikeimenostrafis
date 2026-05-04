@@ -1,16 +1,24 @@
 #ifndef OBJECTARRAY_HPP
 #define OBJECTARRAY_HPP
 
+#include "Number.hpp"
+#include "String.hpp"
 #include "Object.hpp"
+using namespace std;
 
 class ObjectArray : public Object {
-    virtual void print() const = 0; // Pure virtual function
-    virtual ~Object() {}            // Virtual destructor
-    virtual bool isEqual(const Object* other) const = 0;
-    virtual std::shared_ptr<Object> operator+(const Object& other) const = 0;
-    virtual std::shared_ptr<Object> operator^(const Object& needle) const = 0;
-    virtual std::shared_ptr<Object> clone() const = 0;
-    virtual std::shared_ptr<Object> operator[](int index) const = 0;
+    private:
+        vector<shared_ptr<Object>> elements;
+    public:
+        ObjectArray();
+        ~ObjectArray() {};
+        void print() const override;
+        bool isEqual(const Object* other) const override;
+        shared_ptr<Object> operator+(const Object& other) const override;
+        shared_ptr<Object> operator^(const Object& needle) const override;
+        shared_ptr<Object> clone() const override;
+        shared_ptr<Object> operator[](int index) const override;
+        int getSize();
 };
 
 #endif
