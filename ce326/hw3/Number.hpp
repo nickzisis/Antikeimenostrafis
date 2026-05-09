@@ -1,9 +1,7 @@
 #ifndef NUMBER_HPP
 #define NUMBER_HPP
-
 #include "Object.hpp"
-#include "ObjectArray.hpp"
-#include "String.hpp"
+using namespace std;
 
 class Number : public Object {
     private:

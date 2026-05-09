@@ -1,75 +1,79 @@
+#include "Number.hpp"
 #include "String.hpp"
+#include "ObjectArray.hpp"
 
-class String : public Object {
-    private:
-        string value;
-    public:
-        String(const string& val) : value(val) {}
-        
-        ~String() {}
+String::String(const string& val) : value(val) {}
 
-        void SetValue(const string& value) {
-            this->value = value;   
-        }     
-        
-        string GetValue() const {
-            return value;
+String::~String() {} 
+
+void String::SetValue(const string& value) {
+    this->value = value;   
+}     
+
+string String::GetValue() const {
+    return value;
+}
+
+void String::print() const {
+    cout << "\"" << value << "\"";
+}
+
+bool String::isEqual(const Object* other) const {
+    const String* otherString = dynamic_cast<const String*>(other);
+
+    if (otherString) {
+        if (this->value == otherString->value) {
+            return true;
         }
+    }
+    return false;
+}
 
-        void print() const override {
-            cout << value;
-        }
+shared_ptr<Object> String::operator[](int index) const {
+    if (index < 0 || index >= static_cast<int>(value.size())) {
+        cout << "Error: Index out of bounds." << endl;
+        return nullptr;
+    }
+    return make_shared<String>(string(1, value[index]));
+}
 
-        bool isEqual(const Object* other) const override {
-            const String* otherString = dynamic_cast<const String*>(other);
+shared_ptr<Object> String::operator^(const Object& needle) const {
+    const Number* needleNum = dynamic_cast<const Number*>(&needle);
+    const ObjectArray* needleArray = dynamic_cast<const ObjectArray*>(&needle);
 
-            if (otherString) {
-                if (this->value == otherString->value) {
-                    return true;
-                }
-            }
-            return false;
-        }
+    if (needleNum) {
+        cout << "Error: Searching Number on String is not defined." << endl;
+        return nullptr;
+    }
 
-        shared_ptr<Object> operator[](int index) const override {
-            if (index < 0 || index >= static_cast<int>(value.size())) {
-                cout << "Error: Index out of bounds." << endl;
-                return nullptr;
-            }
-            return make_shared<String>(string(1, value[index]));
-        }
-
-        shared_ptr<Object> operator^(const Object& needle) const override {
-            const String* needleString = dynamic_cast<const String*>(&needle);
-            
-            if (!needleString) {
-                cout << "Error: Needle must be a string." << endl;
-                return nullptr;
-            }
+    if(needleArray) {
+        cout << "Error: Searching ObjectArray on String is not defined." << endl;
+        return nullptr;
+    }
     
-            shared_ptr<ObjectArray> resultArray = make_shared<ObjectArray>();
+    const String* needleString = dynamic_cast<const String*>(&needle);
+    shared_ptr<ObjectArray> resultArray = make_shared<ObjectArray>();
 
-            size_t pos = -1;
-            while ((pos = value.find(needleString->value, pos+1)) != string::npos) {
-                resultArray->operator+(make_shared<Number>(pos));
-            }
+    size_t pos = 0;
+    while ((pos = value.find(needleString->value, pos)) != string::npos) {
+        resultArray->addElement(make_shared<Number>(static_cast<double>(pos)));
+        pos++;
+    }
+    
+    return resultArray;
+}
 
-            resultArray->print();
-            return resultArray;
-        }
+shared_ptr<Object> String::operator+(const Object& other) const {
+    const String* otherString = dynamic_cast<const String*>(&other);
+    
+    if (!otherString) {
+        cout << "Error: Can only concatenate with another string." << endl;
+        return nullptr;
+    }
 
-        shared_ptr<Object> operator+(const Object& other) const override {
-            const String* otherString = dynamic_cast<const String*>(&other);
-            
-            if (!otherString) {
-                cout << "Error: Can only concatenate with another string." << endl;
-                return nullptr;
-            }
+    return make_shared<String>(value + otherString->value);
+}
 
-            return make_shared<String>(value + otherString->value);
-        }
-
-        shared_ptr<Object> clone() const override {
-            return make_shared<String>(value);
-        }
-};
+shared_ptr<Object> String::clone() const {
+    return make_shared<String>(value);
+}

@@ -1,9 +1,7 @@
 #ifndef STRING_HPP
 #define STRING_HPP
-#include "Number.hpp"
-#include "ObjectArray.hpp"
-using namespace std;
 #include "Object.hpp"
+using namespace std;
 
 class String : public Object {
     private:
