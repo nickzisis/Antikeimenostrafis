@@ -1,0 +1,2 @@
+my_arr = {"Zero", {10, 20}, "Two"}
+my_arr[1][1]

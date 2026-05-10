@@ -1,0 +1,5 @@
+$> 
+[Assigned] my_arr = {"Zero", {10, 20}, "Two"}
+$> 
+[Result] {10, 20}
+$> 

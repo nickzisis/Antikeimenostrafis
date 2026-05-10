@@ -1,0 +1,5 @@
+$> 
+[Assigned] n = 15.5
+$> 
+Error: Number type is not indexable.
+$> 

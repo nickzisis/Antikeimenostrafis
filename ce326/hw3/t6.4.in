@@ -1,0 +1,2 @@
+tree = { "Hello", {'Sugar', 22, { "Coffee", 2, 1.23, 'Sugar'}, 3 }, 'World', 1.23 }
+tree ^ {"Coffee", 2, 1.23, 'Sugar'}

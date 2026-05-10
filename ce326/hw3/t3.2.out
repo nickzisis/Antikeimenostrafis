@@ -1,0 +1,9 @@
+$> 
+[Assigned] a = "Hello"
+$> 
+[Assigned] b = {"Hello", "World!"}
+$> 
+[Assigned] a = 5.5
+$> 
+[Assigned] c = {5.5, {"Hello", "World!"}}
+$> 

@@ -1,0 +1,5 @@
+$> 
+[Assigned] a = {"Coffee", "and", "Sugar"}
+$> 
+[Assigned] b = {"No", {"Coffee", "and", "Sugar"}, "Milk!"}
+$> 

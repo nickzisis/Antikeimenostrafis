@@ -1,0 +1,2 @@
+text = "A dream within a dream or dream the impossible in your dreams."
+s_toy = text ^ "dream"
