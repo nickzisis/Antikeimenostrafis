@@ -14,6 +14,7 @@ class ObjectArray : public Object {
         void print() const override;
         bool isEqual(const Object* other) const override;
         void searchPaths(const Object* needle, vector<int>& currentPath, shared_ptr<ObjectArray> results) const;
+        void searchArrayPaths(const ObjectArray* needle, vector<int>& currentPath, shared_ptr<ObjectArray> results) const;
         shared_ptr<Object> operator+(const Object& other) const override;
         shared_ptr<Object> operator^(const Object& needle) const override;
         shared_ptr<Object> clone() const override;

@@ -8,9 +8,11 @@ int main() {
     Parser parse;
     string line;
 
-    while (getline(cin, line)) {
+    cout << "$> " << endl;
+    while (getline(cin, line)) {    
         parse.parseLine(line);
-    }
+        cout << "$> " << endl;
+    }  
     return 0;
 }
  

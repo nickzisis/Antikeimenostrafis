@@ -108,18 +108,45 @@ void ObjectArray::searchPaths(const Object* needle, vector<int>& currentPath,
     }
 }
 
+void ObjectArray::searchArrayPaths(const ObjectArray* needle, vector<int>& currentPath,
+                                    shared_ptr<ObjectArray> results) const{
+    
+    for (int i = 0; i <= (int)elements.size() - (int)needle->elements.size(); ++i) {
+        bool match = true;
+        
+        for (int j = 0; j < (int)needle->elements.size(); ++j) {
+            if (!elements[i+j]->isEqual(needle->elements[j].get())) {
+                match = false;
+                break;
+            }
+        }
+        
+        if (match) {
+            shared_ptr<ObjectArray> path = make_shared<ObjectArray>();
+            for (int idx : currentPath) {
+                path->addElement(make_shared<Number>(static_cast<double>(idx)));
+            }
+            results->addElement(path);
+        }
+    }
+
+    for (int i = 0; i < (int)elements.size(); ++i) {
+        const ObjectArray* subArray = dynamic_cast<const ObjectArray*>(elements[i].get());
+        
+        if (subArray) {
+            currentPath.push_back(i);
+            subArray->searchArrayPaths(needle, currentPath, results);
+            currentPath.pop_back();
+        }
+    }
+}
+
 shared_ptr<Object> ObjectArray::operator^(const Object& needle) const {
     if (dynamic_cast<const String*>(&needle)) {
         shared_ptr<ObjectArray> results = make_shared<ObjectArray>();
         vector<int> path;
         
         searchPaths(&needle, path, results);
-        if (results->getSize() == 0) {
-            auto empty = make_shared<ObjectArray>();
-            
-            results->addElement(empty);
-        }
-        
         return results;
     }
 
@@ -140,27 +167,12 @@ shared_ptr<Object> ObjectArray::operator^(const Object& needle) const {
 
     else if (const ObjectArray* needleArray = dynamic_cast<const ObjectArray*>(&needle)) {
         shared_ptr<ObjectArray> results = make_shared<ObjectArray>();
+        vector<int> path;
         
-        for (int i = 0; i <= (int)elements.size() - (int)needleArray->elements.size(); ++i) {
-            bool match = true;
-            
-            for (int j = 0; j < (int)needleArray->elements.size(); ++j) {
-                if (!elements[i+j]->isEqual(needleArray->elements[j].get())) {
-                    match = false;
-                    break;
-                }
-            }
-            
-            if (match) {
-                shared_ptr<ObjectArray> path = make_shared<ObjectArray>();
-                
-                path->addElement(make_shared<Number>(static_cast<double>(i)));
-                results->addElement(path);
-            }
-        }
+        searchArrayPaths(needleArray, path, results);
         
         return results;
-    }
+}
     
     return nullptr;
 }

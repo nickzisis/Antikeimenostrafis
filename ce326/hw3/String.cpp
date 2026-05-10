@@ -67,7 +67,7 @@ shared_ptr<Object> String::operator+(const Object& other) const {
     const String* otherString = dynamic_cast<const String*>(&other);
     
     if (!otherString) {
-        cout << "Error: Can only concatenate with another string." << endl;
+        cout << "Error: Addition not defined between incompatible types." << endl;
         return nullptr;
     }
 

@@ -12,12 +12,22 @@ void Parser::skipWhitespace(string& input) {
 }
  
 shared_ptr<Object> Parser::parseString(string& input) {
+    regex mismatch1(R"(^'([^']*)\")");
+    regex mismatch2(R"(^\"([^\"]*)')");
     regex stringRegex(R"(^\"([^\"]*)\"|^'([^']*)')");
     smatch matches;
-    
+
+    if (regex_search(input, matches, mismatch1) ||
+        regex_search(input, matches, mismatch2)) {
+        cout << "Error: Ill-formatted string." << endl;
+        
+        return nullptr;
+    }
+
     if (regex_search(input, matches, stringRegex)) {
         string val = matches[1].matched ? matches[1] : matches[2];
         input = matches.suffix().str();
+
         return make_shared<String>(val);
     }
 
@@ -108,7 +118,7 @@ shared_ptr<Object> Parser::parseObject(string& input) {
         if (variables.count(varName)) {
             return variables[varName]->clone();
         } else {
-            cout << "Error: Undefined variable '" << varName << "'" << endl;
+            cout << "[Invalid assignment] " << varName << "  =" << endl;
             return nullptr;
         }
     }
@@ -189,14 +199,20 @@ shared_ptr<Object> Parser::applyIndexing(shared_ptr<Object> obj, string& input) 
 }
  
 void Parser::parseLine(string input) {
+    regex assignRegex(R"(^([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*)");
+    regex invalidVarRegex(R"(^([0-9][a-zA-Z0-9_]*|[.][a-zA-Z0-9_.]*|[a-zA-Z_][a-zA-Z0-9_]*[^a-zA-Z0-9_\s=][a-zA-Z0-9_]*|[a-zA-Z_][a-zA-Z0-9_]*\s+[a-zA-Z0-9_]+)\s*=)");
+    smatch matches, invalidMatches;
+
     skipWhitespace(input);
     if (input.empty()) {
         return;
     }
 
-    regex assignRegex(R"(^([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*)");
-    smatch matches;
- 
+    if (regex_search(input, invalidMatches, invalidVarRegex)) {
+        cout << "[Invalid assignment] " << invalidMatches[1] << "  =" << endl;
+        return;
+    }
+     
     if (regex_search(input, matches, assignRegex)) {
         string varName = matches[1];
         input = matches.suffix().str();
@@ -204,10 +220,11 @@ void Parser::parseLine(string input) {
         shared_ptr<Object> value = parseExpression(input);
         if (value) {
             variables[varName] = value;
-            cout << varName << " = ";
+            cout << "[Assigned] " << varName << " = ";
             value->print();
             cout << endl;
         }
+
     } else {
         shared_ptr<Object> value = parseExpression(input);
         skipWhitespace(input);
@@ -217,6 +234,7 @@ void Parser::parseLine(string input) {
         }
  
         if (value) {
+            cout << "[Result] ";
             value->print();
             cout << endl;
         }
