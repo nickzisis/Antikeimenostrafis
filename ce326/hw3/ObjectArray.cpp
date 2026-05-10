@@ -89,7 +89,7 @@ void ObjectArray::searchPaths(const Object* needle, vector<int>& currentPath,
         currentPath.push_back(i);
         
         if (elements[i]->isEqual(needle)) {
-            auto path = make_shared<ObjectArray>();
+            shared_ptr<ObjectArray> path = make_shared<ObjectArray>();
         
             for (int idx : currentPath) {
                 path->addElement(make_shared<Number>(static_cast<double>(idx)));
