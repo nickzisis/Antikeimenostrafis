@@ -6,12 +6,14 @@ class Edges {
         unsigned long int startId;
         unsigned long int endId;
         double distance;
+        bool oneway;
     public:
-        Edges(unsigned long int startId, unsigned long int endId, double distance);
+        Edges(unsigned long int startId, unsigned long int endId, double distance, bool oneway);
         Edges (const Edges& other);
-        unsigned long int GetStartId();
-        unsigned long int GetEndId();
-        double GetDistance();
+        unsigned long int GetStartId() const;
+        unsigned long int GetEndId() const;
+        double GetDistance() const;
+        bool GetOneway() const;
         void SetStartId(unsigned long int startId);
         void SetEndId(unsigned long int endId);
 };
