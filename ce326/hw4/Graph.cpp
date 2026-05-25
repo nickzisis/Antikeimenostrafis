@@ -316,6 +316,34 @@ list<unsigned long int> Graph::dijkstra(unsigned long int startId, unsigned long
     return endPath;
 }
 
+//Prints the path of the dijkstra algorithm, with the distance of each edge and a google maps link.
+void Graph::printDijkstraPath(list<unsigned long int> path) {
+    auto it = path.begin();
+    auto next = it;
+    next++;
+
+    while (next != path.end()) {
+        for (const auto& edge : vertices[vertex_id[*it]].GetEdges()) {
+            if (edge.GetEndId() == *next) {
+                cout << "[" << *it << " -> " << *next << "] ";
+                cout << fixed << setprecision(3) << edge.GetDistance() << endl;
+                break;
+            }
+        }
+        it = next;
+        next++;
+    }
+
+    cout << endl << endl;
+
+    cout << "https://www.google.com/maps/dir/";
+    for (const auto& id : path) {
+        unsigned int index = vertex_id[id];
+        cout << vertices[index].GetLatitude() << "," << vertices[index].GetLongitude() << "/";
+    }
+    cout << endl;
+}
+
 //Checks if the graph is empty.
 bool Graph::isEmpty() {
     bool isEmpty = true;
@@ -325,4 +353,71 @@ bool Graph::isEmpty() {
     }
 
     return isEmpty;
+}
+
+//Does the bfs traversal for the graph, starting from a specified vertex.
+list<unsigned long int> Graph::BFS(unsigned long int id) {
+    list<unsigned long int> result;
+    unordered_set<unsigned long int> visited;
+    queue<unsigned long int> q;
+
+    q.push(id);
+    visited.insert(id);
+
+    while(!(q.empty())) {
+        unsigned long int current = q.front();
+        q.pop();
+        result.push_back(current);
+
+        set<unsigned long int> neighbors;
+        for (const auto& edge : vertices[vertex_id[current]].GetEdges()) {
+            neighbors.insert(edge.GetEndId());
+        }
+        
+        for (const auto& i : neighbors) {
+            if(visited.find(i) == visited.end()) {
+                visited.insert(i);
+                q.push(i);
+                
+
+            }
+        }
+    }
+
+    return result;
+}
+
+//Does the dfs traversal for the graph, starting from a specified vertex.
+list<unsigned long int> Graph::DFS(unsigned long int id) {
+    list<unsigned long int> result;
+    unordered_set<unsigned long int> visited;
+    stack<unsigned long int> q;
+
+    q.push(id);
+    visited.insert(id);
+
+    while(!(q.empty())) {
+        unsigned long int current = q.top();
+        q.pop();
+        result.push_back(current);
+        
+        set<unsigned long int> neighbors;
+        for (const auto& edge : vertices[vertex_id[current]].GetEdges()) {
+            neighbors.insert(edge.GetEndId());
+        }
+
+        for (auto it = neighbors.rbegin(); it != neighbors.rend(); ++it) {
+            if (visited.find(*it) == visited.end()) {
+                visited.insert(*it);
+                q.push(*it);
+            }
+        }
+
+    }
+
+    return result;
+}
+
+void Graph::compactGraph() {
+    
 }

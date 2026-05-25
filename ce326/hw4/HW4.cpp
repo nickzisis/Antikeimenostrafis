@@ -20,7 +20,8 @@ int main() {
     string input;
     string correctInputs = "icpbdq";
     string filepath;
-    Graph graph;
+    Graph* graph = nullptr;
+    list<unsigned long int> shortestPath, bfsResult, dfsResult;
     unsigned long int startId = 0, endId = 0;
 
     while (true) {
@@ -38,6 +39,7 @@ int main() {
 
         switch (command) {
             case 'q':
+                delete graph;
                 return 0;
             case 'c':
                 break;
@@ -48,14 +50,13 @@ int main() {
                     break;
                 }
                 
-                if (graph.isEmpty()) {
+                if (graph->isEmpty()) {
                     cout << "Graph is empty. Load the graph first." << endl;
                     break;
                 }
 
-                list<unsigned long int> shortestPath;
-                shortestPath = graph.dijkstra(startId, endId);
-
+                shortestPath = graph->dijkstra(startId, endId);
+                graph->printDijkstraPath(shortestPath);
                 break;
             }
             case 'b':
@@ -64,6 +65,12 @@ int main() {
                     cout << "Wrong Input. Expected format: b <startId>" << endl;
                     break;
                 }
+
+                bfsResult = graph->BFS(startId);
+                for (const auto& id : bfsResult) {
+                    cout << id << endl;
+                }
+
                 break;
             case 'd':
                 
@@ -72,14 +79,19 @@ int main() {
                     break;
                 }
 
+                dfsResult = graph->DFS(startId);
+                for (const auto& id : dfsResult) {
+                    cout << id << endl;
+                }
+
                 break;
             case 'i':
                 if (!(ss >> filepath)) {
                     cout << "Wrong Input. Expected format: i <filepath>" << endl;
                     break;
                 }
-
-                graph = Graph(input.substr(1).c_str());
+                
+                graph = new Graph(filepath.c_str());
                 break;
             default:
                 break;

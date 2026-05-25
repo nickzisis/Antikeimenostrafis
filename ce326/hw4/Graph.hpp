@@ -14,6 +14,9 @@ using namespace std;
 #include <unordered_map>
 #include <unordered_set>
 #include <set>
+#include <queue>
+#include <stack>
+#include <iomanip>
 
 class Graph {
     private:
@@ -32,8 +35,12 @@ class Graph {
         void removeEdge(unsigned long int id1, unsigned long int id2);
         vector<unsigned long int> getAdjacentVertices(unsigned long int id);
         
-        bool isEmpty();
         list<unsigned long int> dijkstra(unsigned long int startId, unsigned long endId);
+        void printDijkstraPath(std::list<unsigned long int> path);
+        bool isEmpty();
+        list<unsigned long int> BFS(unsigned long int id);
+        list<unsigned long int> DFS(unsigned long int id);
+        void compactGraph();
     };
 
 #endif
