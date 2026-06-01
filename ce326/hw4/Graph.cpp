@@ -1,5 +1,6 @@
 #include "Graph.hpp"
 
+//Default constructor
 Graph::Graph() {
 
 }
@@ -13,7 +14,7 @@ static double harvesine(double lat1, double lon1, double lat2, double lon2) {
     deltaLat = lat2 - lat1;
     deltaLon = lon2 - lon1;
 
-    a = pow(sin((deltaLat * rad) /2),2) + cos(lat1 * rad) * cos(lat2 * rad) * pow(((deltaLon * rad)/2),2);
+    a = pow(sin((deltaLat * rad) /2),2) + cos(lat1 * rad) * cos(lat2 * rad) * pow(sin((deltaLon * rad)/2),2);
     c = 2 * atan2(sqrt(a),sqrt(1-a));
     result = R * c;
 
@@ -22,7 +23,9 @@ static double harvesine(double lat1, double lon1, double lat2, double lon2) {
 
 //Calculates the factor of each way.
 static double factorCalc(const char* v) {
-    double factor;
+    double factor = 1;
+
+    if (v == nullptr) return factor;
 
     if (strcmp(v, "motorway") == 0 || strcmp(v, "trunk") == 0) {
         factor = 0.5;
@@ -43,7 +46,27 @@ static double factorCalc(const char* v) {
     return factor;
 }
 
-//Reads for the file then adds the edges to the graph.
+void Graph::addNodes (XMLNode* pRoot) {
+    XMLElement* pVertex = pRoot->FirstChildElement("node");
+    if (pVertex == nullptr) {
+        cout << "Error: Invalid XML file structure." << endl;
+        return;
+    }
+
+    while (pVertex !=  nullptr) {
+        double longitude, latitude;
+        unsigned long int id;
+
+        pVertex->QueryAttribute("id", &id);
+        pVertex->QueryDoubleAttribute("lat", &latitude);
+        pVertex->QueryDoubleAttribute("lon", &longitude);
+
+        AddVertex(Vertex(id, longitude, latitude));
+        pVertex = pVertex->NextSiblingElement("node");
+    }
+}
+
+
 void Graph::addWays (XMLNode* pRoot) {
     XMLElement* pWay = pRoot->FirstChildElement("way");
     if (pWay == nullptr) {
@@ -53,9 +76,11 @@ void Graph::addWays (XMLNode* pRoot) {
 
     double factor;
     const char* highway_type;
+    unordered_set<unsigned long int> highwayNodes;
 
     while(pWay != nullptr) {
         bool oneway = false, is_highway = false;
+        highway_type = nullptr;
 
         XMLElement* tag = pWay->FirstChildElement("tag");
         if (tag == nullptr) {
@@ -63,23 +88,18 @@ void Graph::addWays (XMLNode* pRoot) {
             continue;
         }
        
-        while (tag != nullptr) {;
+        while (tag != nullptr) {
             const char * k = tag->Attribute("k");
             const char * v = tag->Attribute("v");
 
-
-            if (strcmp(k, "highway") == 0) {
-                if (strcmp(v, "residential") == 0 || strcmp(v, "primary") == 0 || strcmp(v, "secondary") == 0 || strcmp(v, "tertiary") == 0
-                    || strcmp(v, "trunk") == 0 || strcmp(v, "motorway") == 0 || strcmp(v, "living_street") == 0 || strcmp(v, "unclassified") == 0
-                    || strcmp(v, "service") == 0 || strcmp(v, "track") == 0) {
-                        is_highway = true;
-                        highway_type = v;
+            if (k && v) {
+                if (strcmp(k, "highway") == 0) {
+                    is_highway = true;
+                    highway_type = v;
                 }
-            }
 
-            if (is_highway) {
                 if (strcmp(k, "oneway") == 0) {
-                    if (strcmp(v, "yes") == 0) {
+                    if (strcmp(v, "yes") == 0 || strcmp(v, "1") == 0) {
                         oneway = true;
                     }
                     else {
@@ -87,7 +107,6 @@ void Graph::addWays (XMLNode* pRoot) {
                     }
                 } 
             }
-
             tag = tag->NextSiblingElement("tag");
         }
         
@@ -109,9 +128,14 @@ void Graph::addWays (XMLNode* pRoot) {
             }
             nd2->QueryAttribute("ref", &id2);
             
-            factor = factorCalc(highway_type);
-            distance = factor * harvesine(vertices[vertex_id[id1]].GetLatitude(), vertices[vertex_id[id1]].GetLongitude(), vertices[vertex_id[id2]].GetLatitude(), vertices[vertex_id[id2]].GetLongitude());
-            AddEdge(id1, id2, distance, oneway);
+            if (vertex_id.find(id1) != vertex_id.end() && vertex_id.find(id2) != vertex_id.end()) {
+                factor = factorCalc(highway_type);
+                distance = factor * harvesine(vertices[vertex_id.at(id1)].GetLatitude(), vertices[vertex_id.at(id1)].GetLongitude(), vertices[vertex_id.at(id2)].GetLatitude(), vertices[vertex_id.at(id2)].GetLongitude());
+                AddEdge(id1, id2, distance, oneway);
+            }
+            
+            highwayNodes.insert(id1);
+            highwayNodes.insert(id2);
             
             nd1 = nd2;
             nd2 = nd2->NextSiblingElement("nd");
@@ -120,54 +144,24 @@ void Graph::addWays (XMLNode* pRoot) {
                 nd1->QueryAttribute("ref", &id1);
                 nd2->QueryAttribute("ref", &id2);
 
-                factor = factorCalc(highway_type);
-                distance = factor * harvesine(vertices[vertex_id[id1]].GetLatitude(), vertices[vertex_id[id1]].GetLongitude(), vertices[vertex_id[id2]].GetLatitude(), vertices[vertex_id[id2]].GetLongitude());
-                AddEdge(id1, id2, distance, oneway);
+                if (vertex_id.find(id1) != vertex_id.end() && vertex_id.find(id2) != vertex_id.end()) {
+                    factor = factorCalc(highway_type);
+                    distance = factor * harvesine(vertices[vertex_id.at(id1)].GetLatitude(), vertices[vertex_id.at(id1)].GetLongitude(), vertices[vertex_id.at(id2)].GetLatitude(), vertices[vertex_id.at(id2)].GetLongitude());
+                    AddEdge(id1, id2, distance, oneway);
+                }
+                
+                highwayNodes.insert(id1);
+                highwayNodes.insert(id2);
             
                 nd1 = nd2;
                 nd2 = nd2->NextSiblingElement("nd");
             }
         }
-        
         pWay = pWay->NextSiblingElement("way");
     }
-}
 
-//Reads from the file then adds the nodes to the graph.
-void Graph::addNodes (XMLNode* pRoot) {
-    XMLElement* pVertex = pRoot->FirstChildElement("node");
-        if (pVertex == nullptr) {
-        cout << "Error: Invalid XML file structure." << endl;
-        return;
-    }
-
-    while (pVertex !=  nullptr) {
-        double longitude, latitude;
-        unsigned long int id;
-
-        pVertex->QueryAttribute("id", &id);
-        pVertex->QueryDoubleAttribute("lat", &latitude);
-        pVertex->QueryDoubleAttribute("lon", &longitude);
-
-        AddVertex(Vertex(id, longitude, latitude));
-        
-        pVertex = pVertex->NextSiblingElement("node");
-    }
-}
-
-//Removes the empty vertices from the graph.
-void Graph::removeVertices() {
-    unordered_set<unsigned long int> endIds;
-
-    for (const auto& vertex : vertices) {
-        for (const auto& edge : vertex.GetEdges()) {
-            endIds.insert(edge.GetEndId());
-        }
-    }
-
-
-    for (int i = vertices.size() - 1; i >= 0 ; --i ) {
-        if ((vertices[i].GetEdges().empty()) && (endIds.find(vertices[i].GetId()) == endIds.end())) {
+    for (int i = vertices.size() - 1; i >= 0; --i) {
+        if (highwayNodes.find(vertices[i].GetId()) == highwayNodes.end()) {
             removeVertex(vertices[i].GetId());
         }
     }
@@ -175,11 +169,16 @@ void Graph::removeVertices() {
 
 //Creates the graph.
 Graph::Graph(string filename) {
+    if (filename.size() >= 4 && filename.substr(filename.size() - 4) == ".txt") {
+        cout << "Invalid format for file: " << filename << endl;
+        return;
+    }
+
     XMLDocument doc;
     XMLError error =  doc.LoadFile(filename.c_str());
     
     if (error != XML_SUCCESS) {
-        cout << "Error loading XML file: " << doc.ErrorStr() << endl;
+        cout << "Unable to open file: " << filename << endl;
         return;
     }
 
@@ -191,7 +190,7 @@ Graph::Graph(string filename) {
 
     addNodes(pRoot);
     addWays(pRoot);
-    removeVertices();
+    cout << "Graph OK" << endl;
 }
 
 //Adds a vertex to the graph.
@@ -204,34 +203,39 @@ void Graph::AddVertex(Vertex vertex) {
 
 //Adds an edge to the graph.
 void Graph::AddEdge(unsigned long int id1, unsigned long int id2, double distance, bool oneway) {
-    if ((vertex_id.find(id1) != vertex_id.end()) && (vertex_id.find(id2) != vertex_id.end())) {
-        unsigned int index1 = vertex_id[id1];
-        unsigned int index2 = vertex_id[id2];
+    if (vertex_id.find(id1) == vertex_id.end() || vertex_id.find(id2) == vertex_id.end())
+        return;
 
-        Edges edge(id1, id2, distance, oneway);
-        vertices[index1].AddEdge(edge);
-        if (!oneway) {
-            Edges reverse_edge(id2, id1, distance, oneway);
-            vertices[index2].AddEdge(reverse_edge);
-        }
+    unsigned int index1 = vertex_id[id1];
+    unsigned int index2 = vertex_id[id2];
+
+    //checks if the edge already exists
+    for (const auto& e : vertices[index1].GetEdges())
+        if (e.GetEndId() == id2) return;
+
+    Edges edge(id1, id2, distance, oneway);
+    vertices[index1].AddEdge(edge);
+
+    if (!oneway) {
+        Edges reverse_edge(id2, id1, distance, oneway);
+        vertices[index2].AddEdge(reverse_edge);
     }
 }
 
 //Removes a vertex and its edges from the graph.
 void Graph::removeVertex(unsigned long int id) {
-    unsigned int deleted_index = vertex_id[id];
-
+    if (vertex_id.find(id) == vertex_id.end()) return;
+    
     for (auto& vertex : vertices) {
-        if (vertex.GetId() != id) {
-            vertex.RemoveEdge(id);
-        }
+        vertex.RemoveEdge(id);
     }
 
-    vertices.erase(vertices.begin() + deleted_index);
+    unsigned int index = vertex_id[id];
+    vertices.erase(vertices.begin() + index);
     vertex_id.erase(id);
-
+    
     for (auto& pair : vertex_id) {
-        if (pair.second > deleted_index) {
+        if (pair.second > index) {
             pair.second--;
         }
     }
@@ -269,6 +273,10 @@ list<unsigned long int> Graph::dijkstra(unsigned long int startId, unsigned long
     set<pair<double, unsigned long int>> pq;
     list<unsigned long int> endPath;
 
+    if (vertex_id.find(startId) == vertex_id.end() || vertex_id.find(endId) == vertex_id.end()) {
+        return list<unsigned long int>();
+    }
+
     for (const auto& vertex : vertices) {
         dist[vertex.GetId()] = numeric_limits<double>::infinity();
     }
@@ -284,6 +292,10 @@ list<unsigned long int> Graph::dijkstra(unsigned long int startId, unsigned long
 
         unsigned long int currentId = current.second;
         double currentDist = current.first;
+
+        if (currentDist > dist[currentId]) {
+            continue;
+        }
 
         if (currentId == endId) {
             break;
@@ -318,15 +330,23 @@ list<unsigned long int> Graph::dijkstra(unsigned long int startId, unsigned long
 
 //Prints the path of the dijkstra algorithm, with the distance of each edge and a google maps link.
 void Graph::printDijkstraPath(list<unsigned long int> path) {
+    if (path.empty()) {
+        return; 
+    }
+
     auto it = path.begin();
     auto next = it;
     next++;
 
+    float totalDistance = 0.0f; 
+
     while (next != path.end()) {
         for (const auto& edge : vertices[vertex_id[*it]].GetEdges()) {
             if (edge.GetEndId() == *next) {
+                totalDistance += edge.GetDistance(); 
+                
                 cout << "[" << *it << " -> " << *next << "] ";
-                cout << fixed << setprecision(3) << edge.GetDistance() << endl;
+                cout << fixed << setprecision(3) << totalDistance << endl; 
                 break;
             }
         }
@@ -334,12 +354,33 @@ void Graph::printDijkstraPath(list<unsigned long int> path) {
         next++;
     }
 
-    cout << endl << endl;
+    cout << endl;
 
     cout << "https://www.google.com/maps/dir/";
     for (const auto& id : path) {
         unsigned int index = vertex_id[id];
-        cout << vertices[index].GetLatitude() << "," << vertices[index].GetLongitude() << "/";
+        
+        //if 4th digit is 0, print 3 digits by removing the 4th digit
+        stringstream ssLat;
+        ssLat << fixed << setprecision(4) << vertices[index].GetLatitude();
+        string latStr = ssLat.str();
+        for (int i=0; i < (int)latStr.size() ; i++) {
+            if (latStr.back() == '0') {
+                latStr.pop_back(); 
+            }
+        }
+
+        //same thing here
+        stringstream ssLon;
+        ssLon << fixed << setprecision(4) << vertices[index].GetLongitude();
+        string lonStr = ssLon.str();
+        for (int i = 0 ; i < (int)lonStr.size() ; i++ ) {
+            if (lonStr.back() == '0') {
+                lonStr.pop_back(); 
+            }
+        }    
+        
+        cout << latStr << "," << lonStr << "/";
     }
     cout << endl;
 }
@@ -360,6 +401,10 @@ list<unsigned long int> Graph::BFS(unsigned long int id) {
     list<unsigned long int> result;
     unordered_set<unsigned long int> visited;
     queue<unsigned long int> q;
+
+    if (vertex_id.find(id) == vertex_id.end()) {
+        return result; 
+    }
 
     q.push(id);
     visited.insert(id);
@@ -393,6 +438,10 @@ list<unsigned long int> Graph::DFS(unsigned long int id) {
     unordered_set<unsigned long int> visited;
     stack<unsigned long int> q;
 
+    if (vertex_id.find(id) == vertex_id.end()) {
+        return result; 
+    }
+
     q.push(id);
     visited.insert(id);
 
@@ -420,7 +469,7 @@ list<unsigned long int> Graph::DFS(unsigned long int id) {
 
 void Graph::compactGraph() {
     bool changed = true;
- 
+
     while (changed) {
         changed = false;
         unordered_map<unsigned long, vector<pair<unsigned long, Edges>>> inMap;
@@ -429,27 +478,27 @@ void Graph::compactGraph() {
                 inMap[e.GetEndId()].emplace_back(v.GetId(), e);
             }
         }
- 
+
         vector<unsigned long> eSrc, eDst;
         vector<double>        eDist;
         vector<bool>          eOneway;
         vector<unsigned long> toRemove;
         unordered_set<unsigned long> marked; 
- 
+
         for (const auto& vertex : vertices) {
             unsigned long vid = vertex.GetId();
             if (marked.count(vid)) continue;
- 
+
             list<Edges> outEdges = vertex.GetEdges();
- 
+
             vector<pair<unsigned long, Edges>> inEdges;
             auto inIt = inMap.find(vid);
             if (inIt != inMap.end()) inEdges = inIt->second;
- 
+
             if (outEdges.size() == 1 && inEdges.size() == 1) {
                 const Edges& outE = outEdges.front();
                 const Edges& inE  = inEdges[0].second;
- 
+
                 if (outE.GetOneway() && inE.GetOneway()) {
                     unsigned long A = inEdges[0].first;
                     unsigned long B = outE.GetEndId();
@@ -471,21 +520,21 @@ void Graph::compactGraph() {
                 if (allBidi)
                     for (const auto& p : inEdges)
                         if (p.second.GetOneway()) { allBidi = false; break; }
- 
+
                 if (allBidi) {
                     unsigned long A = inEdges[0].first;
                     unsigned long B = inEdges[1].first;
- 
+
                     auto oit  = outEdges.begin();
                     unsigned long o1 = oit->GetEndId(); double dVo1 = oit->GetDistance(); ++oit;
                     unsigned long o2 = oit->GetEndId(); double dVo2 = oit->GetDistance();
- 
+
                     bool outMatchesIn = (o1 == A && o2 == B) || (o1 == B && o2 == A);
- 
+
                     if (outMatchesIn && A != B && !marked.count(A) && !marked.count(B)) {
                         double dAV = inEdges[0].second.GetDistance();
                         double dVB = (o1 == B) ? dVo1 : dVo2;
- 
+
                         eSrc.push_back(A);
                         eDst.push_back(B);
                         eDist.push_back(dAV + dVB);

@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <sstream>
 #include "Graph.hpp"
 using namespace std;
 
@@ -12,7 +11,7 @@ void printMenu() {
     //cout << "-d <sid>       :  Print dfs starting from node with <sid>" << endl;
     //cout << "-q             :  Exit without memory leaks" << endl;
     //cout << endl;
-    cout << "Enter your choice: " << endl;
+    cout << endl << "Enter your choice: " << endl;
 }
 
 int main() {
@@ -26,15 +25,16 @@ int main() {
 
     while (true) {
         printMenu();
-        getline(cin, input); 
-        
-        if ((input.empty()) || (correctInputs.find(input[0]) == string::npos)) {
-            cout << "Wrong Input. Expected format i/c/p/b/d/q." << endl;
+        getline(cin, input);
+
+        if (input.empty() || input[0] != '-' || input.size() < 2 || correctInputs.find(input[1]) == string::npos) {
+            cout << "Wrong Input. Expected format -i/-c/-p/-b/-d/-q." << endl;
             continue;
         }
-        
-        char command = input[0];
-        input[0] = ' '; 
+
+        char command = input[1];
+        input[0] = ' ';
+        input[1] = ' ';
         stringstream ss(input);
 
         switch (command) {
@@ -82,7 +82,7 @@ int main() {
                     cout << "Wrong Input. Expected format: d <startId>" << endl;
                     break;
                 }
-
+                
                 dfsResult = graph->DFS(startId);
                 for (const auto& id : dfsResult) {
                     cout << id << endl;
@@ -94,7 +94,7 @@ int main() {
                     cout << "Wrong Input. Expected format: i <filepath>" << endl;
                     break;
                 }
-                delete graph;
+                delete graph;                
                 graph = new Graph(filepath.c_str());
                 break;
             default:

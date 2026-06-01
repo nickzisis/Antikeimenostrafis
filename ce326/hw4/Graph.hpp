@@ -17,6 +17,7 @@ using namespace std;
 #include <queue>
 #include <stack>
 #include <iomanip>
+#include <sstream>
 
 class Graph {
     private:
