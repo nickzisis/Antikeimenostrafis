@@ -5,13 +5,13 @@
 using namespace std;
 
 void printMenu() {
-    cout << endl << "-i <filepath>  :  Import Graph from <filepath>" << endl;
-    cout << "-c             :  Compact Graph" << endl;
-    cout << "-p <sid> <eid> :  Estimate the shortest path between start node with <sid> and end node with <eid>" << endl;
-    cout << "-b <sid>       :  Print bfs starting from node with <sid>" << endl;
-    cout << "-d <sid>       :  Print dfs starting from node with <sid>" << endl;
-    cout << "-q             :  Exit without memory leaks" << endl;
-    cout << endl;
+    //cout << endl << "-i <filepath>  :  Import Graph from <filepath>" << endl;
+    //cout << "-c             :  Compact Graph" << endl;
+    //cout << "-p <sid> <eid> :  Estimate the shortest path between start node with <sid> and end node with <eid>" << endl;
+    //cout << "-b <sid>       :  Print bfs starting from node with <sid>" << endl;
+    //cout << "-d <sid>       :  Print dfs starting from node with <sid>" << endl;
+    //cout << "-q             :  Exit without memory leaks" << endl;
+    //cout << endl;
     cout << "Enter your choice: " << endl;
 }
 
