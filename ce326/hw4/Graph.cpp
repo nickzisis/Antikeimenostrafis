@@ -49,6 +49,7 @@ static double factorCalc(const char* v) {
     return factor;
 }
 
+//Adds the nodes to the graph, by reading the XML file.
 void Graph::addNodes (XMLNode* pRoot) {
     XMLElement* pVertex = pRoot->FirstChildElement("node");
     if (pVertex == nullptr) {
@@ -69,7 +70,7 @@ void Graph::addNodes (XMLNode* pRoot) {
     }
 }
 
-
+//Adds the ways to the graph, by reading the XML file.
 void Graph::addWays (XMLNode* pRoot) {
     XMLElement* pWay = pRoot->FirstChildElement("way");
     if (pWay == nullptr) {
@@ -147,6 +148,7 @@ void Graph::addWays (XMLNode* pRoot) {
             }
             nd2->QueryAttribute("ref", &id2);
             
+            //Check if both nodes exist in the graph before calculating the distance and adding the edge
             if (vertex_id.find(id1) != vertex_id.end() && vertex_id.find(id2) != vertex_id.end()) {
                 factor = factorCalc(highway_type);
                 distance = factor * harvesine(vertices[vertex_id.at(id1)].GetLatitude(), vertices[vertex_id.at(id1)].GetLongitude(), vertices[vertex_id.at(id2)].GetLatitude(), vertices[vertex_id.at(id2)].GetLongitude());
@@ -165,6 +167,7 @@ void Graph::addWays (XMLNode* pRoot) {
                 nd1->QueryAttribute("ref", &id1);
                 nd2->QueryAttribute("ref", &id2);
 
+                //does the same thing here as above
                 if (vertex_id.find(id1) != vertex_id.end() && vertex_id.find(id2) != vertex_id.end()) {
                     factor = factorCalc(highway_type);
                     distance = factor * harvesine(vertices[vertex_id.at(id1)].GetLatitude(), vertices[vertex_id.at(id1)].GetLongitude(), vertices[vertex_id.at(id2)].GetLatitude(), vertices[vertex_id.at(id2)].GetLongitude());
@@ -183,16 +186,17 @@ void Graph::addWays (XMLNode* pRoot) {
         pWay = pWay->NextSiblingElement("way");
     }
 
+    //Removes any vertices that are not connected to any edge, as they are not useful for the graph.
     unordered_set<unsigned long int> connectedNodes;
     for (const auto& vertex : vertices) {
         if (!vertex.GetEdges().empty()) {
             connectedNodes.insert(vertex.GetId());
             for (const auto& edge : vertex.GetEdges()) {
-                connectedNodes.insert(edge.GetEndId()); // Αποθηκεύουμε και αυτούς που δέχονται ακμή
+                connectedNodes.insert(edge.GetEndId());
             }
         }
     }
-
+    
     for (int i = vertices.size() - 1; i >= 0; --i) {
         if (connectedNodes.find(vertices[i].GetId()) == connectedNodes.end()) {
             removeVertex(vertices[i].GetId());
@@ -242,14 +246,14 @@ void Graph::AddEdge(unsigned long int id1, unsigned long int id2, double distanc
     unsigned int index1 = vertex_id[id1];
     unsigned int index2 = vertex_id[id2];
 
-    // 1. Έλεγχος και ενημέρωση για την κανονική κατεύθυνση (id1 -> id2)
+    //Cheks for existing edge in the forward direction (id1 -> id2) and updates it if the new distance is smaller
     bool should_add_forward = true;
     for (const auto& e : vertices[index1].GetEdges()) {
         if (e.GetEndId() == id2) {
             if (distance < e.GetDistance()) {
-                vertices[index1].RemoveEdge(id2); // Βρήκαμε πιο κοντινή, σβήνουμε την παλιά
+                vertices[index1].RemoveEdge(id2);
             } else {
-                should_add_forward = false; // Η παλιά είναι ήδη μικρότερη, δεν προσθέτουμε τίποτα
+                should_add_forward = false;
             }
             break;
         }
@@ -260,15 +264,15 @@ void Graph::AddEdge(unsigned long int id1, unsigned long int id2, double distanc
         vertices[index1].AddEdge(edge);
     }
 
-    // 2. Έλεγχος και ενημέρωση για την ανάποδη κατεύθυνση (id2 -> id1) αν δεν είναι oneway
+    // does the same thing here for the backward direction
     if (!oneway) {
         bool should_add_backward = true;
         for (const auto& e : vertices[index2].GetEdges()) {
             if (e.GetEndId() == id1) {
                 if (distance < e.GetDistance()) {
-                    vertices[index2].RemoveEdge(id1); // Βρήκαμε πιο κοντινή, σβήνουμε την παλιά
+                    vertices[index2].RemoveEdge(id1);
                 } else {
-                    should_add_backward = false; // Η παλιά είναι ήδη μικρότερη
+                    should_add_backward = false;
                 }
                 break;
             }
@@ -527,6 +531,8 @@ list<unsigned long int> Graph::DFS(unsigned long int id) {
     return result;
 }
 
+// Compacts the graph by removing vertices that have only one incoming and one outgoing edge,
+//  and updating the distances of the remaining edges accordingly.
 void Graph::compactGraph() {
     bool changed = true;
 
@@ -544,7 +550,9 @@ void Graph::compactGraph() {
         vector<bool>          eOneway;
         vector<unsigned long> toRemove;
         unordered_set<unsigned long> marked; 
-
+        
+        //Goes through the graph and checks for vertices that have only one incoming and one outgoing edge,
+        // and if they are both oneway, it removes the vertex and adds a new edge between the two remaining vertices
         for (const auto& vertex : vertices) {
             unsigned long vid = vertex.GetId();
             if (marked.count(vid)) continue;
@@ -558,7 +566,7 @@ void Graph::compactGraph() {
             if (outEdges.size() == 1 && inEdges.size() == 1) {
                 const Edges& outE = outEdges.front();
                 const Edges& inE  = inEdges[0].second;
-
+                
                 if (outE.GetOneway() && inE.GetOneway()) {
                     unsigned long A = inEdges[0].first;
                     unsigned long B = outE.GetEndId();
@@ -585,6 +593,9 @@ void Graph::compactGraph() {
                     }
                 }
             }
+            // Checks for vertices that have two incoming and two outgoing edges, 
+            // and if they are all bidirectional, it removes the vertex and 
+            // adds new edges between the remaining vertices
             else if (outEdges.size() == 2 && inEdges.size() == 2) {
                 bool allBidi = true;
                 for (const auto& e : outEdges)
@@ -603,6 +614,8 @@ void Graph::compactGraph() {
 
                     bool outMatchesIn = (o1 == A && o2 == B) || (o1 == B && o2 == A);
 
+                    // If the outgoing edges match the incoming edges and are bidirectional,
+                    // we can safely remove the vertex and connect A and B directly
                     if (outMatchesIn && A != B && !marked.count(A) && !marked.count(B)) {
                         double latA = vertices[vertex_id.at(A)].GetLatitude();
                         double lonA = vertices[vertex_id.at(A)].GetLongitude();
