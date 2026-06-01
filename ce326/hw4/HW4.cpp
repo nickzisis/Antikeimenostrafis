@@ -42,6 +42,10 @@ int main() {
                 delete graph;
                 return 0;
             case 'c':
+                if (graph) {
+                    graph->compactGraph();
+                    cout << "Compact OK" << endl;
+                }
                 break;
             case 'p': {
                 
@@ -90,7 +94,7 @@ int main() {
                     cout << "Wrong Input. Expected format: i <filepath>" << endl;
                     break;
                 }
-                
+                delete graph;
                 graph = new Graph(filepath.c_str());
                 break;
             default:

@@ -419,5 +419,92 @@ list<unsigned long int> Graph::DFS(unsigned long int id) {
 }
 
 void Graph::compactGraph() {
-    
+    bool changed = true;
+ 
+    while (changed) {
+        changed = false;
+        unordered_map<unsigned long, vector<pair<unsigned long, Edges>>> inMap;
+        for (const auto& v : vertices) {
+            for (const auto& e : v.GetEdges()) {
+                inMap[e.GetEndId()].emplace_back(v.GetId(), e);
+            }
+        }
+ 
+        vector<unsigned long> eSrc, eDst;
+        vector<double>        eDist;
+        vector<bool>          eOneway;
+        vector<unsigned long> toRemove;
+        unordered_set<unsigned long> marked; 
+ 
+        for (const auto& vertex : vertices) {
+            unsigned long vid = vertex.GetId();
+            if (marked.count(vid)) continue;
+ 
+            list<Edges> outEdges = vertex.GetEdges();
+ 
+            vector<pair<unsigned long, Edges>> inEdges;
+            auto inIt = inMap.find(vid);
+            if (inIt != inMap.end()) inEdges = inIt->second;
+ 
+            if (outEdges.size() == 1 && inEdges.size() == 1) {
+                const Edges& outE = outEdges.front();
+                const Edges& inE  = inEdges[0].second;
+ 
+                if (outE.GetOneway() && inE.GetOneway()) {
+                    unsigned long A = inEdges[0].first;
+                    unsigned long B = outE.GetEndId();
+                    if (A != B && !marked.count(A) && !marked.count(B)) {
+                        eSrc.push_back(A);
+                        eDst.push_back(B);
+                        eDist.push_back(inE.GetDistance() + outE.GetDistance());
+                        eOneway.push_back(true);
+                        toRemove.push_back(vid);
+                        marked.insert(vid);
+                        changed = true;
+                    }
+                }
+            }
+            else if (outEdges.size() == 2 && inEdges.size() == 2) {
+                bool allBidi = true;
+                for (const auto& e : outEdges)
+                    if (e.GetOneway()) { allBidi = false; break; }
+                if (allBidi)
+                    for (const auto& p : inEdges)
+                        if (p.second.GetOneway()) { allBidi = false; break; }
+ 
+                if (allBidi) {
+                    unsigned long A = inEdges[0].first;
+                    unsigned long B = inEdges[1].first;
+ 
+                    auto oit  = outEdges.begin();
+                    unsigned long o1 = oit->GetEndId(); double dVo1 = oit->GetDistance(); ++oit;
+                    unsigned long o2 = oit->GetEndId(); double dVo2 = oit->GetDistance();
+ 
+                    bool outMatchesIn = (o1 == A && o2 == B) || (o1 == B && o2 == A);
+ 
+                    if (outMatchesIn && A != B && !marked.count(A) && !marked.count(B)) {
+                        double dAV = inEdges[0].second.GetDistance();
+                        double dVB = (o1 == B) ? dVo1 : dVo2;
+ 
+                        eSrc.push_back(A);
+                        eDst.push_back(B);
+                        eDist.push_back(dAV + dVB);
+                        eOneway.push_back(false);
+                        toRemove.push_back(vid);
+                        marked.insert(vid);
+                        changed = true;
+                    }
+                }
+            }
+        }
+ 
+        for (size_t i = 0; i < eSrc.size(); i++) {
+            AddEdge(eSrc[i], eDst[i], eDist[i], eOneway[i]);
+        }
+        for (unsigned long id : toRemove) {
+            if (vertex_id.count(id)) {
+                removeVertex(id);
+            }
+        }
+    }
 }
