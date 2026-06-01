@@ -7,15 +7,18 @@ Graph::Graph() {
 
 //Calculates the harvesine distance.
 static double harvesine(double lat1, double lon1, double lat2, double lon2) {
-    double result, a, c, R, deltaLat, deltaLon, rad;
+    double result; 
+    double a, c, R, deltaLat, deltaLon, rad;
+    double two = 2;
+    double one = 1;
 
     rad = M_PI / 180;
     R = 6378137;
     deltaLat = lat2 - lat1;
     deltaLon = lon2 - lon1;
 
-    a = pow(sin((deltaLat * rad) /2),2) + cos(lat1 * rad) * cos(lat2 * rad) * pow(sin((deltaLon * rad)/2),2);
-    c = 2 * atan2(sqrt(a),sqrt(1-a));
+    a = pow(sin((deltaLat * rad) /two),two) + cos(lat1 * rad) * cos(lat2 * rad) * pow(sin((deltaLon * rad)/two),two);
+    c = two * atan2(sqrt(a),sqrt(one-a));
     result = R * c;
 
     return result;
@@ -76,10 +79,9 @@ void Graph::addWays (XMLNode* pRoot) {
 
     double factor;
     const char* highway_type;
-    unordered_set<unsigned long int> highwayNodes;
 
     while(pWay != nullptr) {
-        bool oneway = false, is_highway = false;
+        bool oneway = false, is_highway = false, reverse_oneway = false, has_explicit_oneway = false;
         highway_type = nullptr;
 
         XMLElement* tag = pWay->FirstChildElement("tag");
@@ -99,15 +101,32 @@ void Graph::addWays (XMLNode* pRoot) {
                 }
 
                 if (strcmp(k, "oneway") == 0) {
+                    has_explicit_oneway = true;
                     if (strcmp(v, "yes") == 0 || strcmp(v, "1") == 0) {
                         oneway = true;
+                        reverse_oneway = false;
+                    }
+                    else if(strcmp(v, "-1") == 0){
+                        oneway = true;
+                        reverse_oneway = true;
                     }
                     else {
                         oneway = false;
+                        reverse_oneway = false;
                     }
                 } 
             }
             tag = tag->NextSiblingElement("tag");
+        }
+
+        if (is_highway && !has_explicit_oneway && highway_type != nullptr) {
+            if (strcmp(highway_type, "motorway") == 0 || 
+                strcmp(highway_type, "motorway_link") == 0 ||
+                strcmp(highway_type, "trunk") == 0 || 
+                strcmp(highway_type, "trunk_link") == 0) {
+                
+                oneway = true;
+            }
         }
         
         if (is_highway) {
@@ -131,12 +150,14 @@ void Graph::addWays (XMLNode* pRoot) {
             if (vertex_id.find(id1) != vertex_id.end() && vertex_id.find(id2) != vertex_id.end()) {
                 factor = factorCalc(highway_type);
                 distance = factor * harvesine(vertices[vertex_id.at(id1)].GetLatitude(), vertices[vertex_id.at(id1)].GetLongitude(), vertices[vertex_id.at(id2)].GetLatitude(), vertices[vertex_id.at(id2)].GetLongitude());
-                AddEdge(id1, id2, distance, oneway);
+                if (reverse_oneway){
+                    AddEdge(id2, id1, distance, true);
+                } else {
+                    AddEdge(id1, id2, distance, oneway);
+                }
             }
             
-            highwayNodes.insert(id1);
-            highwayNodes.insert(id2);
-            
+        
             nd1 = nd2;
             nd2 = nd2->NextSiblingElement("nd");
 
@@ -147,11 +168,13 @@ void Graph::addWays (XMLNode* pRoot) {
                 if (vertex_id.find(id1) != vertex_id.end() && vertex_id.find(id2) != vertex_id.end()) {
                     factor = factorCalc(highway_type);
                     distance = factor * harvesine(vertices[vertex_id.at(id1)].GetLatitude(), vertices[vertex_id.at(id1)].GetLongitude(), vertices[vertex_id.at(id2)].GetLatitude(), vertices[vertex_id.at(id2)].GetLongitude());
-                    AddEdge(id1, id2, distance, oneway);
+                    if (reverse_oneway){
+                        AddEdge(id2, id1, distance, true);
+                    } else {
+                        AddEdge(id1, id2, distance, oneway);
+                    }
                 }
                 
-                highwayNodes.insert(id1);
-                highwayNodes.insert(id2);
             
                 nd1 = nd2;
                 nd2 = nd2->NextSiblingElement("nd");
@@ -160,8 +183,18 @@ void Graph::addWays (XMLNode* pRoot) {
         pWay = pWay->NextSiblingElement("way");
     }
 
+    unordered_set<unsigned long int> connectedNodes;
+    for (const auto& vertex : vertices) {
+        if (!vertex.GetEdges().empty()) {
+            connectedNodes.insert(vertex.GetId());
+            for (const auto& edge : vertex.GetEdges()) {
+                connectedNodes.insert(edge.GetEndId()); // Αποθηκεύουμε και αυτούς που δέχονται ακμή
+            }
+        }
+    }
+
     for (int i = vertices.size() - 1; i >= 0; --i) {
-        if (highwayNodes.find(vertices[i].GetId()) == highwayNodes.end()) {
+        if (connectedNodes.find(vertices[i].GetId()) == connectedNodes.end()) {
             removeVertex(vertices[i].GetId());
         }
     }
@@ -209,16 +242,42 @@ void Graph::AddEdge(unsigned long int id1, unsigned long int id2, double distanc
     unsigned int index1 = vertex_id[id1];
     unsigned int index2 = vertex_id[id2];
 
-    //checks if the edge already exists
-    for (const auto& e : vertices[index1].GetEdges())
-        if (e.GetEndId() == id2) return;
+    // 1. Έλεγχος και ενημέρωση για την κανονική κατεύθυνση (id1 -> id2)
+    bool should_add_forward = true;
+    for (const auto& e : vertices[index1].GetEdges()) {
+        if (e.GetEndId() == id2) {
+            if (distance < e.GetDistance()) {
+                vertices[index1].RemoveEdge(id2); // Βρήκαμε πιο κοντινή, σβήνουμε την παλιά
+            } else {
+                should_add_forward = false; // Η παλιά είναι ήδη μικρότερη, δεν προσθέτουμε τίποτα
+            }
+            break;
+        }
+    }
 
-    Edges edge(id1, id2, distance, oneway);
-    vertices[index1].AddEdge(edge);
+    if (should_add_forward) {
+        Edges edge(id1, id2, distance, oneway);
+        vertices[index1].AddEdge(edge);
+    }
 
+    // 2. Έλεγχος και ενημέρωση για την ανάποδη κατεύθυνση (id2 -> id1) αν δεν είναι oneway
     if (!oneway) {
-        Edges reverse_edge(id2, id1, distance, oneway);
-        vertices[index2].AddEdge(reverse_edge);
+        bool should_add_backward = true;
+        for (const auto& e : vertices[index2].GetEdges()) {
+            if (e.GetEndId() == id1) {
+                if (distance < e.GetDistance()) {
+                    vertices[index2].RemoveEdge(id1); // Βρήκαμε πιο κοντινή, σβήνουμε την παλιά
+                } else {
+                    should_add_backward = false; // Η παλιά είναι ήδη μικρότερη
+                }
+                break;
+            }
+        }
+        
+        if (should_add_backward) {
+            Edges reverse_edge(id2, id1, distance, oneway);
+            vertices[index2].AddEdge(reverse_edge);
+        }
     }
 }
 
@@ -338,7 +397,7 @@ void Graph::printDijkstraPath(list<unsigned long int> path) {
     auto next = it;
     next++;
 
-    float totalDistance = 0.0f; 
+    double totalDistance = 0.0; 
 
     while (next != path.end()) {
         for (const auto& edge : vertices[vertex_id[*it]].GetEdges()) {
@@ -443,25 +502,26 @@ list<unsigned long int> Graph::DFS(unsigned long int id) {
     }
 
     q.push(id);
-    visited.insert(id);
 
     while(!(q.empty())) {
         unsigned long int current = q.top();
         q.pop();
-        result.push_back(current);
         
-        set<unsigned long int> neighbors;
-        for (const auto& edge : vertices[vertex_id[current]].GetEdges()) {
-            neighbors.insert(edge.GetEndId());
-        }
+        if (visited.find(current) == visited.end()) {
+            visited.insert(current);
+            result.push_back(current);
+            
+            set<unsigned long int> neighbors;
+            for (const auto& edge : vertices[vertex_id[current]].GetEdges()) {
+                neighbors.insert(edge.GetEndId());
+            }
 
-        for (auto it = neighbors.rbegin(); it != neighbors.rend(); ++it) {
-            if (visited.find(*it) == visited.end()) {
-                visited.insert(*it);
-                q.push(*it);
+            for (auto it = neighbors.rbegin(); it != neighbors.rend(); ++it) {
+                if (visited.find(*it) == visited.end()) {
+                    q.push(*it); 
+                }
             }
         }
-
     }
 
     return result;
@@ -503,9 +563,21 @@ void Graph::compactGraph() {
                     unsigned long A = inEdges[0].first;
                     unsigned long B = outE.GetEndId();
                     if (A != B && !marked.count(A) && !marked.count(B)) {
+                        double latA = vertices[vertex_id.at(A)].GetLatitude();
+                        double lonA = vertices[vertex_id.at(A)].GetLongitude();
+                        double latB = vertices[vertex_id.at(B)].GetLatitude();
+                        double lonB = vertices[vertex_id.at(B)].GetLongitude();
+                        double latM = vertex.GetLatitude();
+                        double lonM = vertex.GetLongitude();
+
+                        double h_AM = harvesine(latA, lonA, latM, lonM);
+                        double factor = (h_AM > 0.0) ? (inE.GetDistance() / h_AM) : 1.0;
+
+                        double newDist = factor * harvesine(latA, lonA, latB, lonB);
+                        
                         eSrc.push_back(A);
                         eDst.push_back(B);
-                        eDist.push_back(inE.GetDistance() + outE.GetDistance());
+                        eDist.push_back(newDist);
                         eOneway.push_back(true);
                         toRemove.push_back(vid);
                         marked.insert(vid);
@@ -526,18 +598,29 @@ void Graph::compactGraph() {
                     unsigned long B = inEdges[1].first;
 
                     auto oit  = outEdges.begin();
-                    unsigned long o1 = oit->GetEndId(); double dVo1 = oit->GetDistance(); ++oit;
-                    unsigned long o2 = oit->GetEndId(); double dVo2 = oit->GetDistance();
+                    unsigned long o1 = oit->GetEndId(); ++oit;
+                    unsigned long o2 = oit->GetEndId(); 
 
                     bool outMatchesIn = (o1 == A && o2 == B) || (o1 == B && o2 == A);
 
                     if (outMatchesIn && A != B && !marked.count(A) && !marked.count(B)) {
+                        double latA = vertices[vertex_id.at(A)].GetLatitude();
+                        double lonA = vertices[vertex_id.at(A)].GetLongitude();
+                        double latB = vertices[vertex_id.at(B)].GetLatitude();
+                        double lonB = vertices[vertex_id.at(B)].GetLongitude();
+                        double latM = vertex.GetLatitude();
+                        double lonM = vertex.GetLongitude();
+
                         double dAV = inEdges[0].second.GetDistance();
-                        double dVB = (o1 == B) ? dVo1 : dVo2;
+                        
+                        double h_AM = harvesine(latA, lonA, latM, lonM);
+                        double factor = (h_AM > 0.0) ? (dAV / h_AM) : 1.0;
+                        
+                        double newDist = factor * harvesine(latA, lonA, latB, lonB);
 
                         eSrc.push_back(A);
                         eDst.push_back(B);
-                        eDist.push_back(dAV + dVB);
+                        eDist.push_back(newDist);
                         eOneway.push_back(false);
                         toRemove.push_back(vid);
                         marked.insert(vid);

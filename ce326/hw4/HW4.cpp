@@ -36,7 +36,7 @@ int main() {
         input[0] = ' ';
         input[1] = ' ';
         stringstream ss(input);
-
+        
         switch (command) {
             case 'q':
                 delete graph;
@@ -71,10 +71,10 @@ int main() {
                 }
 
                 bfsResult = graph->BFS(startId);
+               
                 for (const auto& id : bfsResult) {
                     cout << id << endl;
                 }
-
                 break;
             case 'd':
                 
